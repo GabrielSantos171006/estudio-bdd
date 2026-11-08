@@ -1,0 +1,11 @@
+br/com/mackenzie/estudiobdd/model/MotivoRejeicao.class
+br/com/mackenzie/estudiobdd/model/OrigemCenario.class
+br/com/mackenzie/estudiobdd/model/Cenario.class
+br/com/mackenzie/estudiobdd/model/HistoriaUsuario.class
+br/com/mackenzie/estudiobdd/model/Usuario.class
+br/com/mackenzie/estudiobdd/model/Passo.class
+br/com/mackenzie/estudiobdd/model/Prioridade.class
+br/com/mackenzie/estudiobdd/model/Projeto.class
+br/com/mackenzie/estudiobdd/EstudioBddApplication.class
+br/com/mackenzie/estudiobdd/model/DecisaoSugestao.class
+br/com/mackenzie/estudiobdd/model/TipoPasso.class
