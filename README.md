@@ -178,7 +178,7 @@ Antes de subir o servidor, você pode rodar a suíte de testes unitários (JUnit
 
 ```bash
 
-./mvnw test
+mvn test
 
 ```
 
@@ -198,7 +198,7 @@ No terminal, dentro da pasta raiz do projeto, execute o comando para iniciar a a
 
 ```bash
 
-./mvnw spring-boot:run
+mvn spring-boot:run
 
 ```
 
