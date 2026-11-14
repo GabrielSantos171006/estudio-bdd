@@ -41,4 +41,13 @@ public class HistoriaUsuarioController {
     public ResponseEntity<HistoriaUsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(historiaService.buscarPorId(id));
     }
+
+    @GetMapping(value = "/{id}/exportar-feature", produces = "text/plain;charset=UTF-8")
+    public ResponseEntity<String> exportarFeature(@PathVariable Long id) {
+        String conteudoFeature = historiaService.exportarFeature(id);
+        
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"historia_" + id + ".feature\"")
+                .body(conteudoFeature);
+    }
 }

@@ -6,12 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.mackenzie.estudiobdd.dto.HistoriaUsuarioRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.HistoriaUsuarioResponseDTO;
-import br.com.mackenzie.estudiobdd.model.HistoriaUsuario;
-import br.com.mackenzie.estudiobdd.model.Projeto;
-import br.com.mackenzie.estudiobdd.model.Usuario;
-import br.com.mackenzie.estudiobdd.repository.HistoriaUsuarioRepository;
-import br.com.mackenzie.estudiobdd.repository.ProjetoRepository;
-import br.com.mackenzie.estudiobdd.repository.UsuarioRepository;
+import br.com.mackenzie.estudiobdd.model.*;
+import br.com.mackenzie.estudiobdd.repository.*;
 
 @Service
 public class HistoriaUsuarioService {
@@ -19,52 +15,71 @@ public class HistoriaUsuarioService {
     private final HistoriaUsuarioRepository historiaRepository;
     private final ProjetoRepository projetoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final CenarioRepository cenarioRepository;
+    private final PassoRepository passoRepository;
+    private final SugestaoRepository sugestaoRepository;
 
     public HistoriaUsuarioService(HistoriaUsuarioRepository historiaRepository,
                                   ProjetoRepository projetoRepository,
-                                  UsuarioRepository usuarioRepository) {
+                                  UsuarioRepository usuarioRepository,
+                                  CenarioRepository cenarioRepository,
+                                  PassoRepository passoRepository,
+                                  SugestaoRepository sugestaoRepository) {
         this.historiaRepository = historiaRepository;
         this.projetoRepository = projetoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.cenarioRepository = cenarioRepository;
+        this.passoRepository = passoRepository;
+        this.sugestaoRepository = sugestaoRepository;
     }
 
-    @Transactional
-    public HistoriaUsuarioResponseDTO criarHistoria(HistoriaUsuarioRequestDTO dto) {
-        Projeto projeto = projetoRepository.findById(dto.projetoId())
-                .orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado com ID: " + dto.projetoId()));
+    // ... mantenha os métodos criarHistoria, listarPorProjeto e buscarPorId que já existem ...
 
-        Usuario autor = usuarioRepository.findById(dto.autorId())
-                .orElseThrow(() -> new IllegalArgumentException("Autor não encontrado com ID: " + dto.autorId()));
+    // NOVO MÉTODO — PASSO 3: Exportador .feature (Regra 5)
+    public String exportarFeature(Long historiaId) {
+        HistoriaUsuario historia = historiaRepository.findById(historiaId)
+                .orElseThrow(() -> new IllegalArgumentException("História de usuário não encontrada com ID: " + historiaId));
 
-        if (historiaRepository.existsByTituloAndProjetoId(dto.titulo(), dto.projetoId())) {
-            throw new IllegalArgumentException("Já existe uma história com este título no projeto informado.");
+        // Bloqueio 1: Não pode exportar se houver sugestões PENDENTES
+        if (sugestaoRepository.existsByHistoriaUsuarioIdAndDecisao(historiaId, DecisaoSugestao.PENDENTE)) {
+            throw new IllegalArgumentException("Não é possível exportar o arquivo .feature enquanto houver sugestões de IA pendentes de curadoria.");
         }
 
-        HistoriaUsuario historia = new HistoriaUsuario();
-        historia.setTitulo(dto.titulo());
-        historia.setPapel(dto.papel());
-        historia.setAcao(dto.acao());
-        historia.setBeneficio(dto.beneficio());
-        historia.setPrioridade(dto.prioridade());
-        historia.setProjeto(projeto);
-        historia.setAutor(autor);
+        // Bloqueio 2: Não pode exportar história sem cenários
+        List<Cenario> cenarios = cenarioRepository.findByHistoriaUsuarioId(historiaId);
+        if (cenarios.isEmpty()) {
+            throw new IllegalArgumentException("Não é possível exportar: a história deve possuir ao menos um cenário cadastrado.");
+        }
 
-        HistoriaUsuario salva = historiaRepository.save(historia);
-        return new HistoriaUsuarioResponseDTO(salva);
+        // Montagem do texto Gherkin com StringBuilder
+        StringBuilder gherkin = new StringBuilder();
+        gherkin.append("# language: pt\n");
+        gherkin.append("Funcionalidade: ").append(historia.getTitulo()).append("\n");
+        gherkin.append("  Como ").append(historia.getPapel()).append("\n");
+        gherkin.append("  Quero ").append(historia.getAcao()).append("\n");
+        gherkin.append("  Para ").append(historia.getBeneficio()).append("\n\n");
+
+        for (Cenario cenario : cenarios) {
+            gherkin.append("  Cenário: ").append(cenario.getTitulo()).append("\n");
+
+            List<Passo> passos = passoRepository.findByCenarioIdOrderByOrdemAsc(cenario.getId());
+            for (Passo passo : passos) {
+                String palavraChave = formatarTipoPasso(passo.getTipo());
+                gherkin.append("    ").append(palavraChave).append(" ").append(passo.getTexto()).append("\n");
+            }
+            gherkin.append("\n");
+        }
+
+        return gherkin.toString();
     }
 
-    @Transactional(readOnly = true)
-    public List<HistoriaUsuarioResponseDTO> listarPorProjeto(Long projetoId) {
-        return historiaRepository.findByProjetoId(projetoId)
-                .stream()
-                .map(HistoriaUsuarioResponseDTO::new)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public HistoriaUsuarioResponseDTO buscarPorId(Long id) {
-        HistoriaUsuario historia = historiaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("História de usuário não encontrada com ID: " + id));
-        return new HistoriaUsuarioResponseDTO(historia);
+    private String formatarTipoPasso(TipoPasso tipo) {
+        return switch (tipo) {
+            case DADO -> "Dado";
+            case QUANDO -> "Quando";
+            case ENTAO -> "Então";
+            case E -> "E";
+            case MAS -> "Mas";
+        };
     }
 }
