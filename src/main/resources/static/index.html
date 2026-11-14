@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estúdio BDD — Gestão de Requisitos e Curadoria de IA</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f6f9; color: #333; }
+        .container { max-width: 1000px; margin: auto; }
+        header { background: #1e293b; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        header h1 { margin: 0 0 5px 0; font-size: 22px; }
+        header p { margin: 0; color: #cbd5e1; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 20px; }
+        h2 { margin-top: 0; font-size: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+        label { display: block; font-weight: bold; margin: 10px 0 4px; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; box-sizing: border-box; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin-top: 12px; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+        button.sec { background: #059669; }
+        button.sec:hover { background: #047857; }
+        button.warn { background: #dc2626; }
+        .item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; margin-bottom: 10px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; background: #e2e8f0; }
+        pre { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Estúdio BDD — Plataforma de Especificação & Curadoria de IA</h1>
+        <p>Programação de Sistemas II • Universidade Presbiteriana Mackenzie</p>
+    </header>
+
+    <div class="card">
+        <h2>1. Selecionar Contexto (Projeto e História de Usuário)</h2>
+        <div class="grid">
+            <div>
+                <label>ID do Projeto:</label>
+                <input type="number" id="projetoId" value="1">
+                <button onclick="carregarHistorias()">Carregar Histórias do Projeto</button>
+            </div>
+            <div>
+                <label>História de Usuário Selecionada:</label>
+                <select id="selectHistoria" onchange="atualizarPainelHistoria()">
+                    <option value="">-- Clique em Carregar Histórias --</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Coluna Esquerda: Cenários -->
+        <div class="card">
+            <h2>2. Cenários BDD Cadastrados</h2>
+            <div id="listaCenarios"><p>Selecione uma história acima.</p></div>
+        </div>
+
+        <!-- Coluna Direita: Sugestões IA e Curadoria -->
+        <div class="card">
+            <h2>3. Sugestões de IA (Curadoria Humana)</h2>
+            <div id="listaSugestoes"><p>Selecione uma história acima.</p></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>4. Exportação Gherkin (.feature)</h2>
+        <p style="font-size: 13px; color: #64748b;">Regra: Só permite exportar se houver cenários e nenhuma sugestão PENDENTE.</p>
+        <button class="sec" onclick="exportarFeature()">Gerar / Baixar Arquivo .feature</button>
+        <pre id="saidaFeature" style="margin-top: 15px; display: none;"></pre>
+    </div>
+</div>
+
+<script>
+    const API = '/api';
+
+    async function carregarHistorias() {
+        const projetoId = document.getElementById('projetoId').value;
+        const select = document.getElementById('selectHistoria');
+        select.innerHTML = '<option value="">Carregando...</option>';
+
+        try {
+            const resp = await fetch(`${API}/historias?projetoId=${projetoId}`);
+            const historias = await resp.json();
+            select.innerHTML = '';
+
+            if (!historias.length) {
+                select.innerHTML = '<option value="">Nenhuma história encontrada</option>';
+                return;
+            }
+
+            historias.forEach(h => {
+                const opt = document.createElement('option');
+                opt.value = h.id;
+                opt.textContent = `#${h.id} - ${h.titulo}`;
+                select.appendChild(opt);
+            });
+
+            atualizarPainelHistoria();
+        } catch (err) {
+            alert('Erro ao buscar histórias: ' + err.message);
+        }
+    }
+
+    async function atualizarPainelHistoria() {
+        const historiaId = document.getElementById('selectHistoria').value;
+        if (!historiaId) return;
+
+        // Buscar Cenários
+        const respCenarios = await fetch(`${API}/cenarios?historiaId=${historiaId}`);
+        const cenarios = await respCenarios.json();
+        const divCenarios = document.getElementById('listaCenarios');
+
+        if (!cenarios.length) {
+            divCenarios.innerHTML = '<p>Nenhum cenário cadastrado nesta história.</p>';
+        } else {
+            divCenarios.innerHTML = cenarios.map(c => `
+                <div class="item">
+                    <strong>${c.titulo}</strong> <span class="badge">${c.origem}</span>
+                    <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px;">
+                        ${c.passos.map(p => `<li><strong>${p.tipo}</strong> ${p.texto}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        // Buscar Sugestões
+        const respSugestoes = await fetch(`${API}/sugestoes?historiaId=${historiaId}`);
+        const sugestoes = await respSugestoes.json();
+        const divSugestoes = document.getElementById('listaSugestoes');
+
+        if (!sugestoes.length) {
+            divSugestoes.innerHTML = '<p>Nenhuma sugestão de IA registrada.</p>';
+        } else {
+            divSugestoes.innerHTML = sugestoes.map(s => `
+                <div class="item">
+                    <strong>IA: ${s.ferramenta}</strong> <span class="badge">${s.decisao}</span>
+                    <p style="font-size: 13px; margin: 6px 0;">${s.conteudo}</p>
+                    ${s.justificativa ? `<small><em>Justificativa: ${s.justificativa}</em></small>` : ''}
+                </div>
+            `).join('');
+        }
+    }
+
+    async function exportarFeature() {
+        const historiaId = document.getElementById('selectHistoria').value;
+        if (!historiaId) {
+            alert('Selecione uma história primeiro!');
+            return;
+        }
+
+        const pre = document.getElementById('saidaFeature');
+        const resp = await fetch(`${API}/historias/${historiaId}/exportar-feature`);
+        const texto = await resp.text();
+
+        pre.style.display = 'block';
+        if (!resp.ok) {
+            pre.style.color = '#f87171';
+            pre.textContent = 'BLOQUEIO DE REGRA DE NEGÓCIO:\n' + texto;
+        } else {
+            pre.style.color = '#38bdf8';
+            pre.textContent = texto;
+        }
+    }
+</script>
+</body>
+</html>
