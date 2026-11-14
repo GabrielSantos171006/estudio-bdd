@@ -33,25 +33,56 @@ public class HistoriaUsuarioService {
         this.sugestaoRepository = sugestaoRepository;
     }
 
-    // ... mantenha os métodos criarHistoria, listarPorProjeto e buscarPorId que já existem ...
+    // 1. Criar História de Usuário
+    @Transactional
+    public HistoriaUsuarioResponseDTO criarHistoria(HistoriaUsuarioRequestDTO dto) {
+        Projeto projeto = projetoRepository.findById(dto.projetoId())
+                .orElseThrow(() -> new IllegalArgumentException("Projeto não encontrado com ID: " + dto.projetoId()));
 
-    // NOVO MÉTODO — PASSO 3: Exportador .feature (Regra 5)
+        Usuario autor = usuarioRepository.findById(dto.autorId())
+                .orElseThrow(() -> new IllegalArgumentException("Autor não encontrado com ID: " + dto.autorId()));
+
+        HistoriaUsuario historia = new HistoriaUsuario();
+        historia.setTitulo(dto.titulo());
+        historia.setPapel(dto.papel());
+        historia.setAcao(dto.acao());
+        historia.setBeneficio(dto.beneficio());
+        historia.setProjeto(projeto);
+        historia.setAutor(autor);
+
+        HistoriaUsuario salva = historiaRepository.save(historia);
+        return new HistoriaUsuarioResponseDTO(salva);
+    }
+
+    // 2. Listar Histórias por Projeto
+    public List<HistoriaUsuarioResponseDTO> listarPorProjeto(Long projetoId) {
+        return historiaRepository.findByProjetoId(projetoId)
+                .stream()
+                .map(HistoriaUsuarioResponseDTO::new)
+                .toList();
+    }
+
+    // 3. Buscar História por ID
+    public HistoriaUsuarioResponseDTO buscarPorId(Long id) {
+        HistoriaUsuario historia = historiaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("História de usuário não encontrada com ID: " + id));
+        return new HistoriaUsuarioResponseDTO(historia);
+    }
+
+    // 4. Exportador .feature (Passo 3 / Regra 5)
     public String exportarFeature(Long historiaId) {
         HistoriaUsuario historia = historiaRepository.findById(historiaId)
                 .orElseThrow(() -> new IllegalArgumentException("História de usuário não encontrada com ID: " + historiaId));
 
-        // Bloqueio 1: Não pode exportar se houver sugestões PENDENTES
         if (sugestaoRepository.existsByHistoriaUsuarioIdAndDecisao(historiaId, DecisaoSugestao.PENDENTE)) {
             throw new IllegalArgumentException("Não é possível exportar o arquivo .feature enquanto houver sugestões de IA pendentes de curadoria.");
         }
 
-        // Bloqueio 2: Não pode exportar história sem cenários
         List<Cenario> cenarios = cenarioRepository.findByHistoriaUsuarioId(historiaId);
         if (cenarios.isEmpty()) {
             throw new IllegalArgumentException("Não é possível exportar: a história deve possuir ao menos um cenário cadastrado.");
         }
 
-        // Montagem do texto Gherkin com StringBuilder
         StringBuilder gherkin = new StringBuilder();
         gherkin.append("# language: pt\n");
         gherkin.append("Funcionalidade: ").append(historia.getTitulo()).append("\n");
