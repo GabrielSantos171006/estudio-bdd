@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estúdio BDD — Plataforma Completa de Especificação & Curadoria IA</title>
+    <title>Estúdio BDD — Documentação de Requisitos com Apoio de IA</title>
     <style>
         :root {
             --navy: #0f172a;
@@ -20,23 +20,24 @@
         }
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--bg); color: #1e293b; }
-        header { background: var(--navy); color: white; padding: 18px 24px; border-bottom: 3px solid var(--blue); }
+        header { background: var(--navy); color: white; padding: 16px 24px; border-bottom: 3px solid var(--blue); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         header h1 { margin: 0; font-size: 20px; }
-        header p { margin: 4px 0 0; font-size: 13px; color: #94a3b8; }
-        .container { max-width: 1120px; margin: 20px auto; padding: 0 16px; }
-        
+        header p { margin: 4px 0 0; font-size: 12px; color: #94a3b8; }
+        .pill-info { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 6px 10px; border-radius: 6px; font-size: 11px; }
+        .container { max-width: 1180px; margin: 18px auto; padding: 0 16px; }
+
         /* Barra de Contexto Global */
         .context-bar {
             background: white; padding: 14px 18px; border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 18px;
-            display: grid; grid-template-columns: 140px 140px 1fr auto; gap: 12px; align-items: end;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px;
+            display: grid; grid-template-columns: 1fr 1fr 1.2fr auto; gap: 12px; align-items: end;
         }
-        
+
         /* Navegação por Abas (SPA) */
         .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .tab-btn {
             background: white; color: var(--slate); border: 1px solid var(--border);
-            padding: 10px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;
+            padding: 9px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;
         }
         .tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
         .tab-content { display: none; }
@@ -44,156 +45,227 @@
 
         /* Cards e Grids */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-        @media (max-width: 820px) { .grid-2, .context-bar { grid-template-columns: 1fr; } }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 18px; }
-        .card h2 { margin: 0 0 14px; font-size: 16px; color: var(--navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        @media (max-width: 860px) { .grid-2, .grid-3, .context-bar { grid-template-columns: 1fr; } }
+        .card { background: white; padding: 18px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 18px; }
+        .card h2 { margin: 0 0 12px; font-size: 16px; color: var(--navy); border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
 
         /* Formulários */
         label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin: 10px 0 4px; }
         input, select, textarea {
             width: 100%; padding: 8px 10px; border: 1px solid var(--border);
-            border-radius: 5px; font-size: 13px; font-family: inherit;
+            border-radius: 5px; font-size: 13px; font-family: inherit; background: white;
         }
         textarea { resize: vertical; min-height: 65px; }
-        
+
         /* Botões */
         button.btn {
-            background: var(--blue); color: white; border: none; padding: 9px 14px;
-            border-radius: 5px; font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 12px;
+            background: var(--blue); color: white; border: none; padding: 8px 13px;
+            border-radius: 5px; font-weight: 600; font-size: 13px; cursor: pointer; margin-top: 10px;
         }
         button.btn:hover { background: var(--blue-hover); }
-        button.btn-sm { padding: 6px 10px; font-size: 12px; margin-top: 6px; }
+        button.btn-sm { padding: 5px 9px; font-size: 12px; margin-top: 4px; }
         button.btn-emerald { background: var(--emerald); }
         button.btn-emerald:hover { background: var(--emerald-hover); }
         button.btn-red { background: var(--red); }
         button.btn-red:hover { background: var(--red-hover); }
+        button.btn-amber { background: var(--amber); }
         button.btn-outline { background: #f8fafc; color: var(--slate); border: 1px solid var(--border); }
+        button.btn-outline:hover { background: #e2e8f0; }
 
         /* Itens de Lista & Badges */
         .item-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 10px; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-        .badge-PENDENTE { background: #fef3c7; color: #92400e; }
-        .badge-ACEITA, .badge-HUMANO { background: #dbeafe; color: #1e40af; }
+        .badge-PENDENTE, .badge-MEDIA { background: #fef3c7; color: #92400e; }
+        .badge-ACEITA, .badge-HUMANO, .badge-BAIXA { background: #dbeafe; color: #1e40af; }
         .badge-IA_ACEITA { background: #d1fae5; color: #065f46; }
-        .badge-REJEITADA { background: #fee2e2; color: #991b1b; }
+        .badge-REJEITADA, .badge-ALTA { background: #fee2e2; color: #991b1b; }
 
         /* Linhas de Passos Dinâmicos */
-        .passo-row { display: grid; grid-template-columns: 110px 1fr 34px; gap: 6px; margin-bottom: 6px; align-items: center; }
-        
+        .passo-row { display: grid; grid-template-columns: 105px 1fr 28px 28px 28px; gap: 5px; margin-bottom: 6px; align-items: center; }
+
+        /* Métricas */
+        .metric-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; text-align: center; }
+        .metric-val { font-size: 28px; font-weight: 800; color: var(--navy); }
+        .metric-lbl { font-size: 12px; color: #64748b; margin-top: 4px; }
+
         /* Alertas e Saída Gherkin */
-        .toast {
-            padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; font-weight: 600; display: none;
-        }
+        .toast { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; font-weight: 600; display: none; }
         .toast.ok { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; display: block; }
         .toast.err { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; display: block; }
         pre { background: var(--navy); color: #38bdf8; padding: 16px; border-radius: 6px; overflow-x: auto; font-size: 13px; line-height: 1.5; }
         .curadoria-panel { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; display: none; }
+        .story-preview { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 12px; font-size: 13px; margin-bottom: 12px; }
+        .row-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Estúdio BDD — Gestão de Requisitos, Cenários Gherkin & Curadoria de IA</h1>
-    <p>Programação de Sistemas II • Universidade Presbiteriana Mackenzie</p>
+    <div>
+        <h1>Estúdio BDD — Documentação de Requisitos com Apoio de IA</h1>
+        <p>Programação de Sistemas II • Universidade Presbiteriana Mackenzie</p>
+    </div>
+    <div class="pill-info">Identidade simulada via cabeçalho <code>X-Usuario-Id</code> (não é autenticação)</div>
 </header>
 
 <div class="container">
     <div id="feedbackBox" class="toast"></div>
 
-    <!-- Barra de Contexto Ativo -->
+    <!-- Barra de Contexto Global -->
     <div class="context-bar">
         <div>
-            <label style="margin-top:0">ID Usuário Ativo:</label>
-            <input type="number" id="ctxUsuarioId" value="1" min="1">
+            <label style="margin-top:0">Usuário de Demonstração (X-Usuario-Id):</label>
+            <select id="ctxUsuarioSelect"></select>
         </div>
         <div>
-            <label style="margin-top:0">ID Projeto Ativo:</label>
-            <input type="number" id="ctxProjetoId" value="1" min="1">
+            <label style="margin-top:0">Projeto Ativo:</label>
+            <select id="ctxProjetoSelect" onchange="aoMudarProjeto()"></select>
         </div>
         <div>
             <label style="margin-top:0">História de Usuário Selecionada:</label>
-            <select id="ctxHistoriaSelect" onchange="carregarDadosHistoria()">
-                <option value="">-- Clique em Atualizar Contexto --</option>
+            <select id="ctxHistoriaSelect" onchange="aoMudarHistoria()">
+                <option value="">-- Nenhuma história --</option>
             </select>
         </div>
         <div>
-            <button class="btn" style="margin-top:0" onclick="carregarHistorias()">Atualizar Contexto</button>
+            <button class="btn" style="margin-top:0" onclick="inicializarContexto()">Atualizar Tudo</button>
         </div>
     </div>
 
     <!-- Abas de Navegação SPA -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="abrirAba('aba-cenarios', this)">1. Histórias & Cenários BDD</button>
-        <button class="tab-btn" onclick="abrirAba('aba-ia', this)">2. Sugestões de IA & Curadoria</button>
-        <button class="tab-btn" onclick="abrirAba('aba-export', this)">3. Exportar .feature</button>
-        <button class="tab-btn" onclick="abrirAba('aba-setup', this)">4. Cadastrar Usuário / Projeto</button>
+        <button class="tab-btn active" onclick="abrirAba('aba-historias', this)">1. Projetos & Histórias</button>
+        <button class="tab-btn" onclick="abrirAba('aba-cenarios', this)">2. Cenários & Passos BDD</button>
+        <button class="tab-btn" onclick="abrirAba('aba-ia', this)">3. Sugestões de IA & Curadoria</button>
+        <button class="tab-btn" onclick="abrirAba('aba-export', this)">4. Exportar .feature</button>
+        <button class="tab-btn" onclick="abrirAba('aba-resumo', this); carregarResumo()">5. Resumo do Projeto</button>
+        <button class="tab-btn" onclick="abrirAba('aba-setup', this)">6. Usuários & Projetos</button>
     </div>
 
-    <!-- ABA 1: HISTÓRIAS E CENÁRIOS BDD -->
-    <div id="aba-cenarios" class="tab-content active">
+    <!-- ABA 1: CONSULTA DO PROJETO, FILTRO POR PRIORIDADE E HISTÓRIAS -->
+    <div id="aba-historias" class="tab-content active">
         <div class="grid-2">
-            <div>
-                <div class="card">
-                    <h2>Nova História de Usuário (no Projeto Ativo)</h2>
-                    <label>Título da História:</label>
-                    <input type="text" id="histTitulo" placeholder="Ex: Realizar login no portal">
-                    <label>Como (Papel):</label>
-                    <input type="text" id="histPapel" placeholder="Ex: aluno matriculado">
-                    <label>Quero (Ação):</label>
-                    <input type="text" id="histAcao" placeholder="Ex: autenticar com meu RA e senha">
-                    <label>Para (Benefício):</label>
-                    <input type="text" id="histBeneficio" placeholder="Ex: acessar minhas notas e faltas">
-                    <button class="btn" onclick="criarHistoria()">Salvar História de Usuário</button>
+            <div class="card">
+                <h2 id="tituloFormHistoria">Nova História de Usuário</h2>
+                <input type="hidden" id="histEditId">
+                <label>Título da História (único no projeto):</label>
+                <input type="text" id="histTitulo" placeholder="Ex: Realizar login no portal">
+                <label>Como (Papel):</label>
+                <input type="text" id="histPapel" placeholder="Ex: aluno matriculado">
+                <label>Quero (Objetivo):</label>
+                <input type="text" id="histAcao" placeholder="Ex: autenticar com meu RA e senha">
+                <label>Para (Benefício):</label>
+                <input type="text" id="histBeneficio" placeholder="Ex: acessar minhas notas e faltas">
+                <label>Prioridade:</label>
+                <select id="histPrioridade">
+                    <option value="ALTA">ALTA</option>
+                    <option value="MEDIA" selected>MEDIA</option>
+                    <option value="BAIXA">BAIXA</option>
+                </select>
+                <div class="row-actions">
+                    <button class="btn" onclick="salvarHistoria()">Salvar História</button>
+                    <button type="button" id="btnCancelarHist" class="btn btn-outline" style="display:none" onclick="limparFormHistoria()">Cancelar Edição</button>
                 </div>
+            </div>
 
-                <div class="card">
-                    <h2>Novo Cenário BDD Manual (na História Selecionada)</h2>
-                    <label>Título do Cenário:</label>
-                    <input type="text" id="cenTitulo" placeholder="Ex: Login com credenciais válidas">
-                    <label>Passos Gherkin (Ordem: Dado -> Quando -> Então):</label>
-                    <div id="containerPassos"></div>
-                    <button type="button" class="btn btn-outline btn-sm" onclick="adicionarLinhaPasso()">+ Adicionar Passo</button>
-                    <br>
-                    <button class="btn btn-emerald" onclick="criarCenarioManual()">Validar e Salvar Cenário</button>
+            <div class="card">
+                <h2>Histórias do Projeto Ativo</h2>
+                <div style="display:flex;gap:10px;align-items:end;margin-bottom:12px">
+                    <div style="flex:1">
+                        <label style="margin-top:0">Filtrar por Prioridade:</label>
+                        <select id="filtroPrioridade" onchange="carregarHistorias()">
+                            <option value="">TODAS</option>
+                            <option value="ALTA">ALTA</option>
+                            <option value="MEDIA">MEDIA</option>
+                            <option value="BAIXA">BAIXA</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline" style="margin-top:0" onclick="carregarHistorias()">Filtrar</button>
+                </div>
+                <div id="listaHistorias"><p style="color:#64748b;font-size:13px">Carregando...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABA 2: CENÁRIOS E PASSOS BDD -->
+    <div id="aba-cenarios" class="tab-content">
+        <div id="resumoHistoriaCenarios" class="story-preview" style="display:none"></div>
+        <div class="grid-2">
+            <div class="card">
+                <h2 id="tituloFormCenario">Novo Cenário BDD (na História Selecionada)</h2>
+                <input type="hidden" id="cenEditId">
+                <label>Título do Cenário (único na história):</label>
+                <input type="text" id="cenTitulo" placeholder="Ex: Login com credenciais válidas">
+                <label>Origem do Cenário:</label>
+                <select id="cenOrigem">
+                    <option value="HUMANO">HUMANO (escrito pelo analista)</option>
+                    <option value="IA_ACEITA">IA_ACEITA (baseado em sugestão de IA aceita)</option>
+                </select>
+                <label>Passos Gherkin (Ordem: Dado → Quando → Então; E/Mas não iniciam):</label>
+                <div id="containerPassos"></div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="adicionarLinhaPasso()">+ Adicionar Passo</button>
+                <div class="row-actions">
+                    <button class="btn btn-emerald" onclick="salvarCenario()">Validar e Salvar Cenário</button>
+                    <button type="button" id="btnCancelarCen" class="btn btn-outline" style="display:none" onclick="limparFormCenario()">Cancelar Edição</button>
                 </div>
             </div>
 
             <div class="card">
                 <h2>Cenários Cadastrados na História</h2>
-                <div id="listaCenarios"><p style="color:#64748b;font-size:13px">Carregue o contexto acima para visualizar.</p></div>
+                <div id="listaCenarios"><p style="color:#64748b;font-size:13px">Selecione uma história no topo.</p></div>
             </div>
         </div>
     </div>
 
-    <!-- ABA 2: SUGESTÕES DE IA E CURADORIA -->
+    <!-- ABA 3: SUGESTÕES DE IA E CURADORIA (AO LADO DA HISTÓRIA) -->
     <div id="aba-ia" class="tab-content">
         <div class="grid-2">
-            <div class="card">
-                <h2>Registrar Sugestão Gerada por IA</h2>
-                <label>Ferramenta de IA:</label>
-                <input type="text" id="sugFerramenta" value="Gemini">
-                <label>Prompt Utilizado:</label>
-                <textarea id="sugPrompt" placeholder="Ex: Gere cenários BDD de exceção para login com senha bloqueada"></textarea>
-                <label>Conteúdo Sugerido pela IA (Rascunho):</label>
-                <textarea id="sugConteudo" placeholder="Cenário: Bloqueio após 3 tentativas
-Dado que o usuário errou a senha 3 vezes..."></textarea>
-                <button class="btn" onclick="registrarSugestao()">Registrar Sugestão (PENDENTE)</button>
+            <div>
+                <div class="card">
+                    <h2>História em Análise</h2>
+                    <div id="historiaAoLadoSugestao"><p style="color:#64748b;font-size:13px">Selecione uma história no topo.</p></div>
+                </div>
+                <div class="card">
+                    <h2>Registrar Sugestão Obtida com IA</h2>
+                    <p style="font-size:12px;color:#64748b;margin-top:-6px">O sistema não chama nenhuma API de IA: registre aqui o prompt e a resposta obtida.</p>
+                    <label>Ferramenta de IA:</label>
+                    <input type="text" id="sugFerramenta" value="Gemini">
+                    <label>Prompt Utilizado:</label>
+                    <textarea id="sugPrompt" placeholder="Ex: Gere cenários BDD de exceção para login bloqueado"></textarea>
+                    <label>Conteúdo Sugerido pela IA:</label>
+                    <textarea id="sugConteudo" placeholder="Cenário: Bloqueio após 3 tentativas..."></textarea>
+                    <button class="btn" onclick="registrarSugestao()">Registrar Sugestão (PENDENTE)</button>
+                </div>
             </div>
 
             <div class="card">
                 <h2>Fila de Curadoria Humana</h2>
-                <p style="font-size:12px;color:#64748b;margin-top:-8px">Apenas o autor da história pode aprovar ou rejeitar sugestões.</p>
+                <p style="font-size:12px;color:#64748b;margin-top:-6px">
+                    Somente o autor da história pode decidir. Aceitar não altera cenários automaticamente; você ajusta os cenários depois e marca a origem <code>IA_ACEITA</code>.
+                </p>
+                <div style="display:flex;gap:8px;align-items:end;margin-bottom:12px">
+                    <div style="flex:1">
+                        <label style="margin-top:0">Filtrar por Decisão:</label>
+                        <select id="filtroDecisao" onchange="carregarSugestoes()">
+                            <option value="">TODAS</option>
+                            <option value="PENDENTE">PENDENTE</option>
+                            <option value="ACEITA">ACEITA</option>
+                            <option value="REJEITADA">REJEITADA</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="listaSugestoes"><p style="color:#64748b;font-size:13px">Selecione uma história no topo.</p></div>
             </div>
         </div>
     </div>
 
-    <!-- ABA 3: EXPORTAR .FEATURE -->
+    <!-- ABA 4: EXPORTAR .FEATURE -->
     <div id="aba-export" class="tab-content">
         <div class="card">
-            <h2>Gerador de Arquivo Executável Gherkin (.feature)</h2>
+            <h2>Exportador de Arquivo Gherkin (.feature)</h2>
             <p style="font-size:13px;color:#475569">
-                <strong>Governança:</strong> O sistema bloqueia a exportação caso exista qualquer sugestão de IA <code>PENDENTE</code> ou se a história não possuir cenários.
+                <strong>Regra de Governança:</strong> A exportação só é permitida se a história tiver ao menos um cenário e <strong>nenhuma</strong> sugestão <code>PENDENTE</code>.
             </p>
             <button class="btn btn-emerald" onclick="gerarPreviewFeature()">Validar & Visualizar .feature</button>
             <button class="btn" onclick="baixarArquivoFeature()">Baixar Arquivo (.feature)</button>
@@ -201,25 +273,46 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
         </div>
     </div>
 
-    <!-- ABA 4: SETUP (USUÁRIOS E PROJETOS) -->
+    <!-- ABA 5: RESUMO DO PROJETO -->
+    <div id="aba-resumo" class="tab-content">
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:8px;margin-bottom:14px">
+                <h2 style="border:none;margin:0;padding:0">Resumo Métrico do Projeto</h2>
+                <button class="btn btn-sm" style="margin:0" onclick="carregarResumo()">Atualizar Métricas</button>
+            </div>
+            <div id="conteudoResumo"><p style="color:#64748b;font-size:13px">Selecione um projeto no topo.</p></div>
+        </div>
+    </div>
+
+    <!-- ABA 6: SETUP (USUÁRIOS E PROJETOS) -->
     <div id="aba-setup" class="tab-content">
         <div class="grid-2">
             <div class="card">
-                <h2>Cadastrar Novo Usuário / Revisor</h2>
+                <h2>Cadastrar Usuário</h2>
                 <label>Nome Completo:</label>
-                <input type="text" id="usrNome" placeholder="Ex: Gabriel Santos">
-                <label>E-mail Institucional:</label>
-                <input type="email" id="usrEmail" placeholder="Ex: gabriel@mackenzie.br">
+                <input type="text" id="usrNome" placeholder="Ex: Maria Silva">
+                <label>E-mail (único):</label>
+                <input type="email" id="usrEmail" placeholder="Ex: maria@mackenzie.br">
                 <button class="btn" onclick="criarUsuario()">Cadastrar Usuário</button>
+                <h2 style="margin-top:20px">Usuários Cadastrados</h2>
+                <div id="listaUsuarios"></div>
             </div>
 
             <div class="card">
-                <h2>Cadastrar Novo Projeto</h2>
-                <label>Nome do Projeto:</label>
-                <input type="text" id="projNome" placeholder="Ex: Sistema Acadêmico Mackenzie">
+                <h2 id="tituloFormProjeto">Cadastrar Projeto</h2>
+                <input type="hidden" id="projEditId">
+                <label>Nome do Projeto (único):</label>
+                <input type="text" id="projNome" placeholder="Ex: Sistema Acadêmico">
                 <label>Descrição:</label>
-                <textarea id="projDesc" placeholder="Especificação BDD dos módulos acadêmicos"></textarea>
-                <button class="btn" onclick="criarProjeto()">Cadastrar Projeto</button>
+                <textarea id="projDesc" placeholder="Descrição geral do sistema"></textarea>
+                <label>Contexto do Domínio (glossário e regras do negócio):</label>
+                <textarea id="projContexto" placeholder="Ex: RA = Registro Acadêmico; Trancamento = ..."></textarea>
+                <div class="row-actions">
+                    <button class="btn" onclick="salvarProjeto()">Salvar Projeto</button>
+                    <button type="button" id="btnCancelarProj" class="btn btn-outline" style="display:none" onclick="limparFormProjeto()">Cancelar Edição</button>
+                </div>
+                <h2 style="margin-top:20px">Projetos Cadastrados</h2>
+                <div id="listaProjetos"></div>
             </div>
         </div>
     </div>
@@ -227,40 +320,88 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
 
 <script>
     const API = '/api';
+    let cacheHistorias = [];
+    let cacheCenarios = [];
+    let cacheProjetos = [];
 
-    // Inicializa 3 passos padrão no formulário de cenário
-    window.onload = () => {
-        adicionarLinhaPasso('DADO', 'que o usuário está na tela inicial');
-        adicionarLinhaPasso('QUANDO', 'ele preenche os dados obrigatórios');
-        adicionarLinhaPasso('ENTAO', 'o sistema confirma a operação');
+    window.onload = async () => {
+        resetarPassosPadrao();
+        await inicializarContexto();
     };
+
+    function escapeHtml(txt) {
+        if (txt === null || txt === undefined) return '';
+        return String(txt)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function usuarioAtivoId() {
+        return document.getElementById('ctxUsuarioSelect').value || '1';
+    }
+
+    function headersJson() {
+        return { 'Content-Type': 'application/json', 'X-Usuario-Id': usuarioAtivoId() };
+    }
+
+    function headersIdentidade() {
+        return { 'X-Usuario-Id': usuarioAtivoId() };
+    }
 
     function abrirAba(idAba, btn) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById(idAba).classList.add('active');
-        btn.classList.add('active');
+        if (btn) btn.classList.add('active');
     }
 
     function mostrarAviso(msg, sucesso = true) {
         const box = document.getElementById('feedbackBox');
         box.className = 'toast ' + (sucesso ? 'ok' : 'err');
         box.textContent = msg;
-        setTimeout(() => { box.style.display = 'none'; }, 6000);
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => { box.style.display = 'none'; }, 6000);
     }
 
     async function tratarResposta(resp) {
+        if (resp.status === 204) return null;
         const text = await resp.text();
         let data = null;
         try { data = JSON.parse(text); } catch { data = text; }
         if (!resp.ok) {
-            const msgErro = (data && data.mensagens) ? data.mensagens.join(' | ') : (typeof data === 'string' ? data : 'Erro na requisição');
+            const lista = data && (data.erros || data.mensagens);
+            const msgErro = Array.isArray(lista) && lista.length
+                ? lista.join(' | ')
+                : (data && data.detail) || (typeof data === 'string' && data) || `Erro HTTP ${resp.status}`;
             throw new Error(msgErro);
         }
         return data;
     }
 
-    // --- SETUP: USUÁRIO E PROJETO ---
+    async function inicializarContexto() {
+        await carregarUsuarios();
+        await carregarProjetos();
+        await carregarHistorias();
+    }
+
+    // --- USUÁRIOS ---
+    async function carregarUsuarios(selecionarId = null) {
+        try {
+            const resp = await fetch(`${API}/usuarios`);
+            const lista = await tratarResposta(resp);
+            const sel = document.getElementById('ctxUsuarioSelect');
+            const anterior = selecionarId || sel.value;
+            sel.innerHTML = lista.length
+                ? lista.map(u => `<option value="${u.id}">#${u.id} — ${escapeHtml(u.nome)} (${escapeHtml(u.email)})</option>`).join('')
+                : '<option value="">Nenhum usuário</option>';
+            if (anterior && lista.some(u => String(u.id) === String(anterior))) sel.value = anterior;
+
+            document.getElementById('listaUsuarios').innerHTML = lista.length
+                ? lista.map(u => `<div class="item-box"><strong>#${u.id} ${escapeHtml(u.nome)}</strong><br><small>${escapeHtml(u.email)}</small></div>`).join('')
+                : '<p style="color:#64748b;font-size:13px">Nenhum usuário cadastrado.</p>';
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
     async function criarUsuario() {
         try {
             const payload = {
@@ -268,127 +409,413 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
                 email: document.getElementById('usrEmail').value
             };
             const resp = await fetch(`${API}/usuarios`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
             });
             const criado = await tratarResposta(resp);
-            document.getElementById('ctxUsuarioId').value = criado.id;
-            mostrarAviso(`Usuário '${criado.nome}' criado com ID #${criado.id}!`);
+            document.getElementById('usrNome').value = '';
+            document.getElementById('usrEmail').value = '';
+            await carregarUsuarios(criado.id);
+            mostrarAviso(`Usuário '${criado.nome}' criado (#${criado.id}) e selecionado!`);
         } catch (e) { mostrarAviso(e.message, false); }
     }
 
-    async function criarProjeto() {
+    // --- PROJETOS ---
+    async function carregarProjetos(selecionarId = null) {
         try {
-            const payload = {
-                nome: document.getElementById('projNome').value,
-                descricao: document.getElementById('projDesc').value,
-                proprietarioId: Number(document.getElementById('ctxUsuarioId').value)
-            };
-            const resp = await fetch(`${API}/projetos`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+            const resp = await fetch(`${API}/projetos`);
+            cacheProjetos = await tratarResposta(resp);
+            const sel = document.getElementById('ctxProjetoSelect');
+            const anterior = selecionarId || sel.value;
+            sel.innerHTML = cacheProjetos.length
+                ? cacheProjetos.map(p => `<option value="${p.id}">#${p.id} — ${escapeHtml(p.nome)}</option>`).join('')
+                : '<option value="">Nenhum projeto</option>';
+            if (anterior && cacheProjetos.some(p => String(p.id) === String(anterior))) sel.value = anterior;
+
+            document.getElementById('listaProjetos').innerHTML = cacheProjetos.length
+                ? cacheProjetos.map(p => `
+                    <div class="item-box">
+                        <strong>#${p.id} ${escapeHtml(p.nome)}</strong> <small>(dono: ${escapeHtml(p.nomeUsuario)})</small>
+                        <p style="margin:4px 0;font-size:12px;color:#475569">${escapeHtml(p.descricao || '')}</p>
+                        ${p.contextoDominio ? `<p style="margin:4px 0;font-size:12px;color:#0f172a"><em>Contexto: ${escapeHtml(p.contextoDominio)}</em></p>` : ''}
+                        <div class="row-actions">
+                            <button class="btn btn-outline btn-sm" onclick="editarProjeto(${p.id})">Editar</button>
+                            <button class="btn btn-red btn-sm" onclick="excluirProjeto(${p.id})">Excluir</button>
+                        </div>
+                    </div>`).join('')
+                : '<p style="color:#64748b;font-size:13px">Nenhum projeto cadastrado.</p>';
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
+    async function aoMudarProjeto() {
+        limparFormHistoria();
+        await carregarHistorias();
+        if (document.getElementById('aba-resumo').classList.contains('active')) {
+            await carregarResumo();
+        }
+    }
+
+    async function salvarProjeto() {
+        const id = document.getElementById('projEditId').value;
+        const payload = {
+            nome: document.getElementById('projNome').value,
+            descricao: document.getElementById('projDesc').value,
+            contextoDominio: document.getElementById('projContexto').value
+        };
+        try {
+            const url = id ? `${API}/projetos/${id}` : `${API}/projetos`;
+            const resp = await fetch(url, {
+                method: id ? 'PUT' : 'POST', headers: headersJson(), body: JSON.stringify(payload)
             });
-            const criado = await tratarResposta(resp);
-            document.getElementById('ctxProjetoId').value = criado.id;
-            mostrarAviso(`Projeto '${criado.nome}' criado com ID #${criado.id}!`);
+            const salvo = await tratarResposta(resp);
+            limparFormProjeto();
+            await carregarProjetos(salvo.id);
+            await carregarHistorias();
+            mostrarAviso(id ? 'Projeto atualizado!' : `Projeto '${salvo.nome}' criado!`);
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
+    function editarProjeto(id) {
+        const p = cacheProjetos.find(x => x.id === id);
+        if (!p) return;
+        document.getElementById('projEditId').value = p.id;
+        document.getElementById('projNome').value = p.nome;
+        document.getElementById('projDesc').value = p.descricao || '';
+        document.getElementById('projContexto').value = p.contextoDominio || '';
+        document.getElementById('tituloFormProjeto').textContent = `Editando Projeto #${p.id}`;
+        document.getElementById('btnCancelarProj').style.display = 'inline-block';
+    }
+
+    function limparFormProjeto() {
+        document.getElementById('projEditId').value = '';
+        document.getElementById('projNome').value = '';
+        document.getElementById('projDesc').value = '';
+        document.getElementById('projContexto').value = '';
+        document.getElementById('tituloFormProjeto').textContent = 'Cadastrar Projeto';
+        document.getElementById('btnCancelarProj').style.display = 'none';
+    }
+
+    async function excluirProjeto(id) {
+        if (!confirm(`Excluir o projeto #${id} e todas as suas histórias?`)) return;
+        try {
+            const resp = await fetch(`${API}/projetos/${id}`, { method: 'DELETE', headers: headersIdentidade() });
+            await tratarResposta(resp);
+            await carregarProjetos();
+            await carregarHistorias();
+            mostrarAviso('Projeto excluído.');
         } catch (e) { mostrarAviso(e.message, false); }
     }
 
     // --- HISTÓRIAS DE USUÁRIO ---
-    async function criarHistoria() {
-        try {
-            const payload = {
-                titulo: document.getElementById('histTitulo').value,
-                papel: document.getElementById('histPapel').value,
-                acao: document.getElementById('histAcao').value,
-                beneficio: document.getElementById('histBeneficio').value,
-                prioridade: 'ALTA',
-                projetoId: Number(document.getElementById('ctxProjetoId').value),
-                autorId: Number(document.getElementById('ctxUsuarioId').value)
-            };
-            const resp = await fetch(`${API}/historias`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-            });
-            const criada = await tratarResposta(resp);
-            mostrarAviso(`História #${criada.id} criada com sucesso!`);
-            await carregarHistorias(criada.id);
-        } catch (e) { mostrarAviso(e.message, false); }
-    }
-
     async function carregarHistorias(selecionarId = null) {
-        const projetoId = document.getElementById('ctxProjetoId').value;
+        const projetoId = document.getElementById('ctxProjetoSelect').value;
+        const prioridade = document.getElementById('filtroPrioridade').value;
         const select = document.getElementById('ctxHistoriaSelect');
+        const divLista = document.getElementById('listaHistorias');
+
+        if (!projetoId) {
+            select.innerHTML = '<option value="">-- Selecione um projeto --</option>';
+            divLista.innerHTML = '<p style="color:#64748b;font-size:13px">Nenhum projeto selecionado.</p>';
+            return;
+        }
+
         try {
-            const resp = await fetch(`${API}/historias?projetoId=${projetoId}`);
-            const lista = await tratarResposta(resp);
-            select.innerHTML = '';
-            if (!lista.length) {
-                select.innerHTML = '<option value="">Nenhuma história neste projeto</option>';
-                return;
+            const qs = prioridade ? `?prioridade=${prioridade}` : '';
+            const resp = await fetch(`${API}/projetos/${projetoId}/historias${qs}`);
+            cacheHistorias = await tratarResposta(resp);
+
+            const anterior = selecionarId || select.value;
+            select.innerHTML = cacheHistorias.length
+                ? cacheHistorias.map(h => `<option value="${h.id}">#${h.id} — ${escapeHtml(h.titulo)} [${h.prioridade}]</option>`).join('')
+                : '<option value="">Nenhuma história encontrada</option>';
+
+            if (anterior && cacheHistorias.some(h => String(h.id) === String(anterior))) {
+                select.value = anterior;
             }
-            lista.forEach(h => {
-                const opt = document.createElement('option');
-                opt.value = h.id;
-                opt.textContent = `#${h.id} — ${h.titulo}`;
-                select.appendChild(opt);
-            });
-            if (selecionarId) select.value = selecionarId;
-            await carregarDadosHistoria();
+
+            divLista.innerHTML = cacheHistorias.length
+                ? cacheHistorias.map(h => `
+                    <div class="item-box">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                            <strong>#${h.id} ${escapeHtml(h.titulo)}</strong>
+                            <span class="badge badge-${h.prioridade}">${h.prioridade}</span>
+                        </div>
+                        <p style="margin:6px 0 0;font-size:12px;color:#475569">
+                            Autor: <strong>${escapeHtml(h.nomeAutor)}</strong> (#${h.autorId}) •
+                            Cenários: <strong>${h.qtdCenarios}</strong> •
+                            Sugestões pendentes: <strong>${h.qtdSugestoesPendentes}</strong>
+                        </p>
+                        <div class="row-actions">
+                            <button class="btn btn-outline btn-sm" onclick="selecionarHistoria(${h.id})">Abrir</button>
+                            <button class="btn btn-outline btn-sm" onclick="editarHistoria(${h.id})">Editar</button>
+                            <button class="btn btn-red btn-sm" onclick="excluirHistoria(${h.id})">Excluir</button>
+                        </div>
+                    </div>`).join('')
+                : '<p style="color:#64748b;font-size:13px">Nenhuma história para o filtro escolhido.</p>';
+
+            await aoMudarHistoria();
         } catch (e) { mostrarAviso(e.message, false); }
     }
 
-    async function carregarDadosHistoria() {
+    async function selecionarHistoria(id) {
+        document.getElementById('ctxHistoriaSelect').value = id;
+        await aoMudarHistoria();
+        mostrarAviso(`História #${id} selecionada no contexto.`);
+    }
+
+    async function aoMudarHistoria() {
+        const historiaId = document.getElementById('ctxHistoriaSelect').value;
+        document.getElementById('saidaFeature').style.display = 'none';
+        if (!historiaId) {
+            document.getElementById('listaCenarios').innerHTML = '<p style="color:#64748b;font-size:13px">Nenhuma história selecionada.</p>';
+            document.getElementById('listaSugestoes').innerHTML = '<p style="color:#64748b;font-size:13px">Nenhuma história selecionada.</p>';
+            document.getElementById('historiaAoLadoSugestao').innerHTML = '<p style="color:#64748b;font-size:13px">Nenhuma história selecionada.</p>';
+            document.getElementById('resumoHistoriaCenarios').style.display = 'none';
+            return;
+        }
+        try {
+            const resp = await fetch(`${API}/historias/${historiaId}`);
+            const h = await tratarResposta(resp);
+            const htmlHistoria = `
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <strong>#${h.id} — ${escapeHtml(h.titulo)}</strong>
+                    <span class="badge badge-${h.prioridade}">${h.prioridade}</span>
+                </div>
+                <p style="margin:6px 0 0"><strong>Como</strong> ${escapeHtml(h.papel)}<br>
+                <strong>Quero</strong> ${escapeHtml(h.acao)}<br>
+                <strong>Para</strong> ${escapeHtml(h.beneficio)}</p>
+                <small style="color:#475569">Autor: ${escapeHtml(h.nomeAutor)} (#${h.autorId})</small>
+            `;
+            document.getElementById('historiaAoLadoSugestao').innerHTML = htmlHistoria;
+            const prev = document.getElementById('resumoHistoriaCenarios');
+            prev.innerHTML = htmlHistoria;
+            prev.style.display = 'block';
+        } catch (e) { mostrarAviso(e.message, false); }
+
+        await carregarCenarios();
+        await carregarSugestoes();
+    }
+
+    async function salvarHistoria() {
+        const projetoId = document.getElementById('ctxProjetoSelect').value;
+        if (!projetoId) return mostrarAviso('Selecione um projeto primeiro.', false);
+
+        const id = document.getElementById('histEditId').value;
+        const payload = {
+            titulo: document.getElementById('histTitulo').value,
+            papel: document.getElementById('histPapel').value,
+            acao: document.getElementById('histAcao').value,
+            beneficio: document.getElementById('histBeneficio').value,
+            prioridade: document.getElementById('histPrioridade').value,
+            projetoId: Number(projetoId)
+        };
+        try {
+            const url = id ? `${API}/historias/${id}` : `${API}/historias`;
+            const resp = await fetch(url, {
+                method: id ? 'PUT' : 'POST', headers: headersJson(), body: JSON.stringify(payload)
+            });
+            const salva = await tratarResposta(resp);
+            limparFormHistoria();
+            await carregarHistorias(salva.id);
+            mostrarAviso(id ? `História #${salva.id} atualizada!` : `História #${salva.id} criada!`);
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
+    async function editarHistoria(id) {
+        try {
+            const resp = await fetch(`${API}/historias/${id}`);
+            const h = await tratarResposta(resp);
+            document.getElementById('histEditId').value = h.id;
+            document.getElementById('histTitulo').value = h.titulo;
+            document.getElementById('histPapel').value = h.papel;
+            document.getElementById('histAcao').value = h.acao;
+            document.getElementById('histBeneficio').value = h.beneficio;
+            document.getElementById('histPrioridade').value = h.prioridade;
+            document.getElementById('tituloFormHistoria').textContent = `Editando História #${h.id}`;
+            document.getElementById('btnCancelarHist').style.display = 'inline-block';
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
+    function limparFormHistoria() {
+        document.getElementById('histEditId').value = '';
+        document.getElementById('histTitulo').value = '';
+        document.getElementById('histPapel').value = '';
+        document.getElementById('histAcao').value = '';
+        document.getElementById('histBeneficio').value = '';
+        document.getElementById('histPrioridade').value = 'MEDIA';
+        document.getElementById('tituloFormHistoria').textContent = 'Nova História de Usuário';
+        document.getElementById('btnCancelarHist').style.display = 'none';
+    }
+
+    async function excluirHistoria(id) {
+        if (!confirm(`Excluir a história #${id} e todos os seus cenários e sugestões?`)) return;
+        try {
+            const resp = await fetch(`${API}/historias/${id}`, { method: 'DELETE', headers: headersIdentidade() });
+            await tratarResposta(resp);
+            await carregarHistorias();
+            mostrarAviso('História excluída.');
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
+    // --- CENÁRIOS E PASSOS BDD ---
+    function resetarPassosPadrao() {
+        document.getElementById('containerPassos').innerHTML = '';
+        adicionarLinhaPasso('DADO', 'que o usuário está na tela inicial');
+        adicionarLinhaPasso('QUANDO', 'ele executa a ação principal');
+        adicionarLinhaPasso('ENTAO', 'o sistema apresenta o resultado esperado');
+    }
+
+    function adicionarLinhaPasso(tipoDefault = 'DADO', textoDefault = '') {
+        const container = document.getElementById('containerPassos');
+        const div = document.createElement('div');
+        div.className = 'passo-row';
+        div.innerHTML = `
+            <select class="passo-tipo">
+                <option value="DADO" ${tipoDefault==='DADO'?'selected':''}>DADO</option>
+                <option value="QUANDO" ${tipoDefault==='QUANDO'?'selected':''}>QUANDO</option>
+                <option value="ENTAO" ${tipoDefault==='ENTAO'?'selected':''}>ENTAO</option>
+                <option value="E" ${tipoDefault==='E'?'selected':''}>E</option>
+                <option value="MAS" ${tipoDefault==='MAS'?'selected':''}>MAS</option>
+            </select>
+            <input type="text" class="passo-texto" value="${escapeHtml(textoDefault)}" placeholder="Descrição do passo...">
+            <button type="button" class="btn btn-outline btn-sm" style="margin:0;padding:6px" title="Subir" onclick="moverPasso(this, -1)">↑</button>
+            <button type="button" class="btn btn-outline btn-sm" style="margin:0;padding:6px" title="Descer" onclick="moverPasso(this, 1)">↓</button>
+            <button type="button" class="btn btn-red btn-sm" style="margin:0;padding:6px" title="Remover" onclick="this.parentElement.remove()">X</button>
+        `;
+        container.appendChild(div);
+    }
+
+    function moverPasso(btn, direcao) {
+        const row = btn.parentElement;
+        const container = row.parentElement;
+        if (direcao < 0 && row.previousElementSibling) {
+            container.insertBefore(row, row.previousElementSibling);
+        } else if (direcao > 0 && row.nextElementSibling) {
+            container.insertBefore(row.nextElementSibling, row);
+        }
+    }
+
+    async function carregarCenarios() {
         const historiaId = document.getElementById('ctxHistoriaSelect').value;
         if (!historiaId) return;
-
-        // 1. Cenários
         try {
-            const respC = await fetch(`${API}/cenarios?historiaId=${historiaId}`);
-            const cenarios = await tratarResposta(respC);
+            const resp = await fetch(`${API}/cenarios?historiaId=${historiaId}`);
+            cacheCenarios = await tratarResposta(resp);
             const divC = document.getElementById('listaCenarios');
-            divC.innerHTML = cenarios.length ? cenarios.map(c => `
+            divC.innerHTML = cacheCenarios.length ? cacheCenarios.map(c => `
                 <div class="item-box">
-                    <strong>${c.titulo}</strong> <span class="badge badge-${c.origem}">${c.origem}</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <strong>${c.posicao ? c.posicao + '. ' : ''}${escapeHtml(c.titulo)}</strong>
+                        <span class="badge badge-${c.origem}">${c.origem === 'IA_ACEITA' ? 'IA_ACEITA (SUGESTAO_IA)' : 'HUMANO'}</span>
+                    </div>
                     <ul style="margin:8px 0 0;padding-left:18px;font-size:13px">
-                        ${c.passos.map(p => `<li><strong>${p.tipo}</strong> ${p.texto}</li>`).join('')}
+                        ${c.passos.map(p => `<li><strong>${p.tipo}</strong> ${escapeHtml(p.texto)}</li>`).join('')}
                     </ul>
-                </div>
-            `).join('') : '<p style="color:#64748b;font-size:13px">Nenhum cenário cadastrado nesta história.</p>';
+                    <div class="row-actions">
+                        <button class="btn btn-outline btn-sm" onclick="editarCenario(${c.id})">Editar / Reordenar Passos</button>
+                        <button class="btn btn-red btn-sm" onclick="excluirCenario(${c.id})">Excluir</button>
+                    </div>
+                </div>`).join('')
+                : '<p style="color:#64748b;font-size:13px">Nenhum cenário cadastrado nesta história.</p>';
         } catch (e) { mostrarAviso(e.message, false); }
+    }
 
-        // 2. Sugestões de IA
+    async function salvarCenario() {
+        const historiaId = document.getElementById('ctxHistoriaSelect').value;
+        if (!historiaId) return mostrarAviso('Selecione uma história no topo primeiro.', false);
+
+        const id = document.getElementById('cenEditId').value;
+        const rows = document.querySelectorAll('#containerPassos .passo-row');
+        const passos = Array.from(rows).map((r, idx) => ({
+            id: null,
+            tipo: r.querySelector('.passo-tipo').value,
+            texto: r.querySelector('.passo-texto').value,
+            ordem: idx + 1
+        }));
+
+        const payload = {
+            titulo: document.getElementById('cenTitulo').value,
+            origem: document.getElementById('cenOrigem').value,
+            historiaUsuarioId: Number(historiaId),
+            passos: passos
+        };
+
         try {
-            const respS = await fetch(`${API}/sugestoes?historiaId=${historiaId}`);
-            const sugestoes = await tratarResposta(respS);
+            const url = id ? `${API}/cenarios/${id}` : `${API}/cenarios`;
+            const resp = await fetch(url, {
+                method: id ? 'PUT' : 'POST', headers: headersJson(), body: JSON.stringify(payload)
+            });
+            await tratarResposta(resp);
+            limparFormCenario();
+            await carregarHistorias(historiaId);
+            mostrarAviso(id ? 'Cenário atualizado e validado!' : 'Cenário BDD validado e salvo!');
+        } catch (e) { mostrarAviso('Bloqueio BDD: ' + e.message, false); }
+    }
+
+    function editarCenario(id) {
+        const c = cacheCenarios.find(x => x.id === id);
+        if (!c) return;
+        document.getElementById('cenEditId').value = c.id;
+        document.getElementById('cenTitulo').value = c.titulo;
+        document.getElementById('cenOrigem').value = c.origem;
+        const container = document.getElementById('containerPassos');
+        container.innerHTML = '';
+        c.passos.forEach(p => adicionarLinhaPasso(p.tipo, p.texto));
+        document.getElementById('tituloFormCenario').textContent = `Editando Cenário #${c.id}`;
+        document.getElementById('btnCancelarCen').style.display = 'inline-block';
+    }
+
+    function limparFormCenario() {
+        document.getElementById('cenEditId').value = '';
+        document.getElementById('cenTitulo').value = '';
+        document.getElementById('cenOrigem').value = 'HUMANO';
+        document.getElementById('tituloFormCenario').textContent = 'Novo Cenário BDD (na História Selecionada)';
+        document.getElementById('btnCancelarCen').style.display = 'none';
+        resetarPassosPadrao();
+    }
+
+    async function excluirCenario(id) {
+        if (!confirm(`Excluir o cenário #${id}?`)) return;
+        const historiaId = document.getElementById('ctxHistoriaSelect').value;
+        try {
+            const resp = await fetch(`${API}/cenarios/${id}`, { method: 'DELETE', headers: headersIdentidade() });
+            await tratarResposta(resp);
+            await carregarHistorias(historiaId);
+            mostrarAviso('Cenário excluído.');
+        } catch (e) { mostrarAviso(e.message, false); }
+    }
+
+    // --- SUGESTÕES DE IA E CURADORIA ---
+    async function carregarSugestoes() {
+        const historiaId = document.getElementById('ctxHistoriaSelect').value;
+        if (!historiaId) return;
+        const decisao = document.getElementById('filtroDecisao').value;
+        try {
+            const qs = decisao ? `&decisao=${decisao}` : '';
+            const resp = await fetch(`${API}/sugestoes?historiaId=${historiaId}${qs}`);
+            const sugestoes = await tratarResposta(resp);
             const divS = document.getElementById('listaSugestoes');
             divS.innerHTML = sugestoes.length ? sugestoes.map(s => `
                 <div class="item-box">
                     <div style="display:flex;justify-content:space-between;align-items:center">
-                        <strong>IA: ${s.ferramenta} (#${s.id})</strong>
+                        <strong>IA: ${escapeHtml(s.ferramenta)} (#${s.id})</strong>
                         <span class="badge badge-${s.decisao}">${s.decisao}</span>
                     </div>
-                    <p style="font-size:12px;color:#475569;margin:6px 0"><em>Prompt: ${s.prompt}</em></p>
-                    <div style="background:white;padding:8px;border:1px solid #e2e8f0;border-radius:4px;font-size:13px;white-space:pre-wrap">${s.conteudo}</div>
-                    ${s.justificativa ? `<p style="font-size:12px;color:#991b1b;margin:6px 0 0"><strong>Motivo (${s.motivoRejeicao}):</strong> ${s.justificativa}</p>` : ''}
-                    
+                    <p style="font-size:12px;color:#475569;margin:6px 0"><em>Prompt: ${escapeHtml(s.prompt)}</em></p>
+                    <div style="background:white;padding:8px;border:1px solid #e2e8f0;border-radius:4px;font-size:13px;white-space:pre-wrap">${escapeHtml(s.conteudo)}</div>
+                    ${s.registradaPorNome ? `<p style="font-size:11px;color:#64748b;margin:6px 0 0">Registrada por: ${escapeHtml(s.registradaPorNome)}${s.decididaPorNome ? ` • Decidida por: ${escapeHtml(s.decididaPorNome)}` : ''}</p>` : ''}
+                    ${s.motivoRejeicao ? `<p style="font-size:12px;color:#991b1b;margin:6px 0 0"><strong>Motivo (${s.motivoRejeicao}):</strong> ${escapeHtml(s.justificativa)}</p>` : ''}
+                    ${s.decisao === 'ACEITA' && s.justificativa ? `<p style="font-size:12px;color:#065f46;margin:6px 0 0"><strong>Observação:</strong> ${escapeHtml(s.justificativa)}</p>` : ''}
+
                     ${s.decisao === 'PENDENTE' ? `
-                        <div style="margin-top:8px">
-                            <button class="btn btn-emerald btn-sm" onclick="togglePainel('aceite-${s.id}', 'rejeicao-${s.id}')">Aprovar & Converter em Cenário</button>
+                        <div class="row-actions">
+                            <button class="btn btn-emerald btn-sm" onclick="togglePainel('aceite-${s.id}', 'rejeicao-${s.id}')">Aceitar Sugestão</button>
                             <button class="btn btn-red btn-sm" onclick="togglePainel('rejeicao-${s.id}', 'aceite-${s.id}')">Rejeitar Sugestão</button>
                         </div>
-
-                        <!-- Painel de Aceite -->
                         <div id="aceite-${s.id}" class="curadoria-panel">
-                            <label>Título Oficial do Cenário Aceito:</label>
-                            <input type="text" id="titulo-aceite-${s.id}" placeholder="Ex: Bloqueio por tentativas inválidas">
-                            <label>Passo Dado:</label>
-                            <input type="text" id="dado-aceite-${s.id}" value="que o pré-requisito da sugestão foi atendido">
-                            <label>Passo Quando:</label>
-                            <input type="text" id="quando-aceite-${s.id}" value="a ação sugerida pela IA for executada">
-                            <label>Passo Então:</label>
-                            <input type="text" id="entao-aceite-${s.id}" value="o comportamento esperado será validado">
+                            <label>Observação (opcional):</label>
+                            <input type="text" id="just-aceite-${s.id}" placeholder="Ex: Vamos incorporar este cenário de exceção manualmente">
                             <button class="btn btn-emerald btn-sm" onclick="confirmarAceite(${s.id})">Confirmar Aceite</button>
                         </div>
-
-                        <!-- Painel de Rejeição -->
                         <div id="rejeicao-${s.id}" class="curadoria-panel">
                             <label>Motivo da Rejeição:</label>
                             <select id="motivo-rej-${s.id}">
@@ -403,8 +830,14 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
                             <button class="btn btn-red btn-sm" onclick="confirmarRejeicao(${s.id})">Confirmar Rejeição</button>
                         </div>
                     ` : ''}
-                </div>
-            `).join('') : '<p style="color:#64748b;font-size:13px">Nenhuma sugestão registrada.</p>';
+
+                    ${s.decisao === 'ACEITA' ? `
+                        <div class="row-actions">
+                            <button class="btn btn-outline btn-sm" onclick="irParaCenarioDeIA()">Criar/Ajustar Cenário com origem IA_ACEITA</button>
+                        </div>
+                    ` : ''}
+                </div>`).join('')
+                : '<p style="color:#64748b;font-size:13px">Nenhuma sugestão registrada.</p>';
         } catch (e) { mostrarAviso(e.message, false); }
     }
 
@@ -414,59 +847,16 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
         elAbrir.style.display = elAbrir.style.display === 'block' ? 'none' : 'block';
     }
 
-    // --- CENÁRIOS MANUAIS ---
-    function adicionarLinhaPasso(tipoDefault = 'DADO', textoDefault = '') {
-        const container = document.getElementById('containerPassos');
-        const div = document.createElement('div');
-        div.className = 'passo-row';
-        div.innerHTML = `
-            <select class="passo-tipo">
-                <option value="DADO" ${tipoDefault==='DADO'?'selected':''}>DADO</option>
-                <option value="QUANDO" ${tipoDefault==='QUANDO'?'selected':''}>QUANDO</option>
-                <option value="ENTAO" ${tipoDefault==='ENTAO'?'selected':''}>ENTAO</option>
-                <option value="E" ${tipoDefault==='E'?'selected':''}>E</option>
-                <option value="MAS" ${tipoDefault==='MAS'?'selected':''}>MAS</option>
-            </select>
-            <input type="text" class="passo-texto" value="${textoDefault}" placeholder="Descrição do passo...">
-            <button type="button" class="btn btn-red btn-sm" style="margin:0;padding:7px" onclick="this.parentElement.remove()">X</button>
-        `;
-        container.appendChild(div);
+    function irParaCenarioDeIA() {
+        limparFormCenario();
+        document.getElementById('cenOrigem').value = 'IA_ACEITA';
+        const btn = document.querySelectorAll('.tab-btn')[1];
+        abrirAba('aba-cenarios', btn);
     }
 
-    async function criarCenarioManual() {
-        const historiaId = document.getElementById('ctxHistoriaSelect').value;
-        if (!historiaId) return mostrarAviso('Selecione uma história no topo primeiro.', false);
-
-        const rows = document.querySelectorAll('#containerPassos .passo-row');
-        const passos = Array.from(rows).map((r, idx) => ({
-            id: null,
-            tipo: r.querySelector('.passo-tipo').value,
-            texto: r.querySelector('.passo-texto').value,
-            ordem: idx + 1
-        }));
-
-        try {
-            const payload = {
-                titulo: document.getElementById('cenTitulo').value,
-                origem: 'HUMANO',
-                historiaUsuarioId: Number(historiaId),
-                passos: passos
-            };
-            const resp = await fetch(`${API}/cenarios`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
-            });
-            await tratarResposta(resp);
-            mostrarAviso('Cenário BDD validado e salvo com sucesso!');
-            document.getElementById('cenTitulo').value = '';
-            await carregarDadosHistoria();
-        } catch (e) { mostrarAviso('Bloqueio BDD: ' + e.message, false); }
-    }
-
-    // --- SUGESTÕES DE IA E CURADORIA ---
     async function registrarSugestao() {
         const historiaId = document.getElementById('ctxHistoriaSelect').value;
         if (!historiaId) return mostrarAviso('Selecione uma história no topo primeiro.', false);
-
         try {
             const payload = {
                 ferramenta: document.getElementById('sugFerramenta').value,
@@ -475,53 +865,47 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
                 historiaUsuarioId: Number(historiaId)
             };
             const resp = await fetch(`${API}/sugestoes`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                method: 'POST', headers: headersJson(), body: JSON.stringify(payload)
             });
             await tratarResposta(resp);
+            document.getElementById('sugPrompt').value = '';
+            document.getElementById('sugConteudo').value = '';
+            await carregarHistorias(historiaId);
             mostrarAviso('Sugestão registrada como PENDENTE!');
-            await carregarDadosHistoria();
         } catch (e) { mostrarAviso(e.message, false); }
     }
 
     async function confirmarAceite(sugestaoId) {
+        const historiaId = document.getElementById('ctxHistoriaSelect').value;
         try {
             const payload = {
-                usuarioId: Number(document.getElementById('ctxUsuarioId').value),
                 decisao: 'ACEITA',
                 motivoRejeicao: null,
-                justificativa: null,
-                tituloCenarioAceito: document.getElementById(`titulo-aceite-${sugestaoId}`).value,
-                passosCenarioAceito: [
-                    { id: null, tipo: 'DADO', texto: document.getElementById(`dado-aceite-${sugestaoId}`).value, ordem: 1 },
-                    { id: null, tipo: 'QUANDO', texto: document.getElementById(`quando-aceite-${sugestaoId}`).value, ordem: 2 },
-                    { id: null, tipo: 'ENTAO', texto: document.getElementById(`entao-aceite-${sugestaoId}`).value, ordem: 3 }
-                ]
+                justificativa: document.getElementById(`just-aceite-${sugestaoId}`).value
             };
             const resp = await fetch(`${API}/sugestoes/${sugestaoId}/curadoria`, {
-                method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                method: 'PATCH', headers: headersJson(), body: JSON.stringify(payload)
             });
             await tratarResposta(resp);
-            mostrarAviso('Sugestão APROVADA e convertida em Cenário IA_ACEITA!');
-            await carregarDadosHistoria();
+            await carregarHistorias(historiaId);
+            mostrarAviso('Sugestão ACEITA! Agora você pode cadastrar ou ajustar o cenário marcando origem IA_ACEITA.');
         } catch (e) { mostrarAviso(e.message, false); }
     }
 
     async function confirmarRejeicao(sugestaoId) {
+        const historiaId = document.getElementById('ctxHistoriaSelect').value;
         try {
             const payload = {
-                usuarioId: Number(document.getElementById('ctxUsuarioId').value),
                 decisao: 'REJEITADA',
                 motivoRejeicao: document.getElementById(`motivo-rej-${sugestaoId}`).value,
-                justificativa: document.getElementById(`just-rej-${sugestaoId}`).value,
-                tituloCenarioAceito: null,
-                passosCenarioAceito: null
+                justificativa: document.getElementById(`just-rej-${sugestaoId}`).value
             };
             const resp = await fetch(`${API}/sugestoes/${sugestaoId}/curadoria`, {
-                method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                method: 'PATCH', headers: headersJson(), body: JSON.stringify(payload)
             });
             await tratarResposta(resp);
-            mostrarAviso('Sugestão REJEITADA com justificativa registrada!');
-            await carregarDadosHistoria();
+            await carregarHistorias(historiaId);
+            mostrarAviso('Sugestão REJEITADA com motivo e justificativa registrados!');
         } catch (e) { mostrarAviso('Bloqueio de Curadoria: ' + e.message, false); }
     }
 
@@ -532,16 +916,19 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
 
         const pre = document.getElementById('saidaFeature');
         const resp = await fetch(`${API}/historias/${historiaId}/exportar-feature`);
-        const texto = await resp.text();
-
         pre.style.display = 'block';
         if (!resp.ok) {
+            let msg = '';
+            try {
+                const err = await resp.json();
+                msg = (err.erros && err.erros.join('\n')) || err.detail || JSON.stringify(err);
+            } catch { msg = await resp.text(); }
             pre.style.color = '#f87171';
-            pre.textContent = 'BLOQUEIO DE GOVERNANÇA:\n' + texto;
+            pre.textContent = 'BLOQUEIO DE GOVERNANÇA:\n' + msg;
             mostrarAviso('Exportação bloqueada pelas regras de negócio.', false);
         } else {
             pre.style.color = '#38bdf8';
-            pre.textContent = texto;
+            pre.textContent = await resp.text();
             mostrarAviso('Arquivo Gherkin (.feature) gerado com sucesso!');
         }
     }
@@ -550,6 +937,42 @@ Dado que o usuário errou a senha 3 vezes..."></textarea>
         const historiaId = document.getElementById('ctxHistoriaSelect').value;
         if (!historiaId) return mostrarAviso('Selecione uma história no topo primeiro.', false);
         window.open(`${API}/historias/${historiaId}/exportar-feature`, '_blank');
+    }
+
+    // --- RESUMO DO PROJETO ---
+    async function carregarResumo() {
+        const projetoId = document.getElementById('ctxProjetoSelect').value;
+        const div = document.getElementById('conteudoResumo');
+        if (!projetoId) {
+            div.innerHTML = '<p style="color:#64748b;font-size:13px">Selecione um projeto no topo.</p>';
+            return;
+        }
+        try {
+            const resp = await fetch(`${API}/projetos/${projetoId}/resumo`);
+            const r = await tratarResposta(resp);
+
+            const renderMapa = (mapa) => Object.entries(mapa || {})
+                .map(([k, v]) => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e2e8f0"><span>${escapeHtml(k)}</span><strong>${v}</strong></div>`)
+                .join('');
+
+            const motivosHtml = (r.motivosRejeicaoMaisFrequentes || []).length
+                ? r.motivosRejeicaoMaisFrequentes.map(m => `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e2e8f0"><span>${escapeHtml(m.chave)}</span><strong>${m.quantidade}</strong></div>`).join('')
+                : '<p style="color:#64748b;font-size:13px">Nenhuma rejeição registrada ainda.</p>';
+
+            div.innerHTML = `
+                <p style="margin-top:0"><strong>Projeto:</strong> ${escapeHtml(r.nomeProjeto)} (#${r.projetoId})</p>
+                <div class="grid-3" style="margin-bottom:16px">
+                    <div class="metric-card"><div class="metric-val">${r.totalHistorias}</div><div class="metric-lbl">Histórias de Usuário</div></div>
+                    <div class="metric-card"><div class="metric-val">${r.totalCenarios}</div><div class="metric-lbl">Cenários BDD</div></div>
+                    <div class="metric-card"><div class="metric-val">${r.totalSugestoes}</div><div class="metric-lbl">Sugestões de IA</div></div>
+                </div>
+                <div class="grid-3">
+                    <div class="item-box"><strong>Cenários por Origem</strong>${renderMapa(r.cenariosPorOrigem)}</div>
+                    <div class="item-box"><strong>Sugestões por Decisão</strong>${renderMapa(r.sugestoesPorDecisao)}</div>
+                    <div class="item-box"><strong>Motivos de Rejeição Mais Frequentes</strong>${motivosHtml}</div>
+                </div>
+            `;
+        } catch (e) { mostrarAviso(e.message, false); }
     }
 </script>
 

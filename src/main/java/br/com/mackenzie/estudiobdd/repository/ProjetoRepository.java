@@ -9,10 +9,14 @@ import br.com.mackenzie.estudiobdd.model.Projeto;
 @Repository
 public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
 
-    // Lista todos os projetos associados a um usuário
     List<Projeto> findByUsuarioId(Long usuarioId);
+
+    List<Projeto> findAllByOrderByIdAsc();
 
     Optional<Projeto> findByNome(String nome);
 
     boolean existsByNome(String nome);
+
+    /** Usado na edição: existe OUTRO projeto com este nome? */
+    boolean existsByNomeAndIdNot(String nome, Long id);
 }

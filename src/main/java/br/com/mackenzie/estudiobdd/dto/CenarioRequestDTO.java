@@ -8,17 +8,22 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+/**
+ * Entrada de criação/edição de cenário com seus passos.
+ * Na edição, historiaUsuarioId é ignorado e a lista de passos substitui a anterior.
+ */
 public record CenarioRequestDTO(
     @NotBlank(message = "O título do cenário é obrigatório")
-    @Size(max = 150, message = "O título não pode exceder 150 caracteres")
+    @Size(max = 150, message = "O título deve ter no máximo 150 caracteres")
     String titulo,
 
     OrigemCenario origem,
 
-    @NotNull(message = "O ID da história de usuário é obrigatório")
+    @NotNull(message = "O ID da história é obrigatório")
     Long historiaUsuarioId,
 
-    @NotEmpty(message = "O cenário deve conter ao menos um passo")
+    @NotEmpty(message = "O cenário deve ter ao menos um passo")
     @Valid
     List<PassoDTO> passos
-) {}
+) {
+}

@@ -7,6 +7,7 @@ import br.com.mackenzie.estudiobdd.model.OrigemCenario;
 public record CenarioResponseDTO(
     Long id,
     String titulo,
+    Integer posicao,
     OrigemCenario origem,
     Long historiaUsuarioId,
     List<PassoDTO> passos
@@ -15,9 +16,14 @@ public record CenarioResponseDTO(
         this(
             cenario.getId(),
             cenario.getTitulo(),
+            cenario.getPosicao(),
             cenario.getOrigem(),
             cenario.getHistoriaUsuario() != null ? cenario.getHistoriaUsuario().getId() : null,
-            cenario.getPassos() != null ? cenario.getPassos().stream().map(PassoDTO::new).toList() : List.of()
+            cenario.getPassos() != null
+                ? cenario.getPassos().stream()
+                      .sorted(java.util.Comparator.comparing(p -> p.getOrdem() == null ? Integer.MAX_VALUE : p.getOrdem()))
+                      .map(PassoDTO::new).toList()
+                : List.of()
         );
     }
 }

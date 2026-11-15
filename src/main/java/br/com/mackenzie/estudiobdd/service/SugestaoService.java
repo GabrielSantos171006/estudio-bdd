@@ -5,105 +5,114 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.com.mackenzie.estudiobdd.dto.CenarioRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.CuradoriaRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.SugestaoRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.SugestaoResponseDTO;
+import br.com.mackenzie.estudiobdd.exception.ConflitoException;
+import br.com.mackenzie.estudiobdd.exception.RecursoNaoEncontradoException;
+import br.com.mackenzie.estudiobdd.exception.RegraNegocioException;
 import br.com.mackenzie.estudiobdd.model.DecisaoSugestao;
 import br.com.mackenzie.estudiobdd.model.HistoriaUsuario;
-import br.com.mackenzie.estudiobdd.model.OrigemCenario;
 import br.com.mackenzie.estudiobdd.model.Sugestao;
+import br.com.mackenzie.estudiobdd.model.Usuario;
 import br.com.mackenzie.estudiobdd.repository.HistoriaUsuarioRepository;
 import br.com.mackenzie.estudiobdd.repository.SugestaoRepository;
+import br.com.mackenzie.estudiobdd.repository.UsuarioRepository;
 
 @Service
 public class SugestaoService {
 
     private final SugestaoRepository sugestaoRepository;
     private final HistoriaUsuarioRepository historiaRepository;
-    private final CenarioService cenarioService;
+    private final UsuarioRepository usuarioRepository;
 
     public SugestaoService(SugestaoRepository sugestaoRepository,
                            HistoriaUsuarioRepository historiaRepository,
-                           CenarioService cenarioService) {
+                           UsuarioRepository usuarioRepository) {
         this.sugestaoRepository = sugestaoRepository;
         this.historiaRepository = historiaRepository;
-        this.cenarioService = cenarioService;
+        this.usuarioRepository = usuarioRepository;
     }
 
+    /** Regra 4: toda sugestão começa PENDENTE. Quem registra é o usuário atual (X-Usuario-Id). */
     @Transactional
-    public SugestaoResponseDTO registrarSugestao(SugestaoRequestDTO dto) {
+    public SugestaoResponseDTO registrarSugestao(SugestaoRequestDTO dto, Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário atual (X-Usuario-Id) não encontrado: " + usuarioId));
         HistoriaUsuario historia = historiaRepository.findById(dto.historiaUsuarioId())
-                .orElseThrow(() -> new IllegalArgumentException("História não encontrada com ID: " + dto.historiaUsuarioId()));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("História não encontrada com ID: " + dto.historiaUsuarioId()));
 
         Sugestao sugestao = new Sugestao();
-        sugestao.setFerramenta(dto.ferramenta());
+        sugestao.setFerramenta(dto.ferramenta().trim());
         sugestao.setPrompt(dto.prompt());
         sugestao.setConteudo(dto.conteudo());
         sugestao.setDecisao(DecisaoSugestao.PENDENTE);
         sugestao.setHistoriaUsuario(historia);
+        sugestao.setRegistradaPor(usuario);
 
-        Sugestao salva = sugestaoRepository.save(sugestao);
-        return new SugestaoResponseDTO(salva);
+        return new SugestaoResponseDTO(sugestaoRepository.save(sugestao));
     }
 
+    /**
+     * Regra 4 (curadoria):
+     *  - uma sugestão já decidida não pode ser alterada;
+     *  - somente o autor da história decide;
+     *  - rejeitar exige motivo (e justificativa);
+     *  - aceitar NÃO altera os cenários automaticamente: o analista ajusta os cenários
+     *    e pode marcá-los com origem IA_ACEITA (SUGESTAO_IA).
+     */
     @Transactional
-    public SugestaoResponseDTO realizarCuradoria(Long sugestaoId, CuradoriaRequestDTO dto) {
+    public SugestaoResponseDTO realizarCuradoria(Long sugestaoId, CuradoriaRequestDTO dto, Long usuarioId) {
         Sugestao sugestao = sugestaoRepository.findById(sugestaoId)
-                .orElseThrow(() -> new IllegalArgumentException("Sugestão não encontrada com ID: " + sugestaoId));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Sugestão não encontrada com ID: " + sugestaoId));
 
         if (sugestao.getDecisao() != DecisaoSugestao.PENDENTE) {
-            throw new IllegalArgumentException("Esta sugestão já foi avaliada anteriormente.");
+            throw new ConflitoException("Esta sugestão já foi decidida (" + sugestao.getDecisao()
+                    + ") e não pode mais ser alterada.");
         }
 
-        // Regra 3: Validação de Autoria (apenas o autor da história pode decidir)
-        Long autorHistoriaId = sugestao.getHistoriaUsuario().getAutor().getId();
-        if (!autorHistoriaId.equals(dto.usuarioId())) {
-            throw new IllegalArgumentException("Apenas o autor da história pode aprovar ou rejeitar sugestões.");
+        HistoriaUsuario historia = sugestao.getHistoriaUsuario();
+        RegrasAutoria.exigirAutor(historia, usuarioId, "aceitar ou rejeitar sugestões desta história");
+
+        if (dto.decisao() == null || dto.decisao() == DecisaoSugestao.PENDENTE) {
+            throw new RegraNegocioException("A decisão da curadoria deve ser ACEITA ou REJEITADA.");
         }
 
-        if (dto.decisao() == DecisaoSugestao.PENDENTE) {
-            throw new IllegalArgumentException("A decisão da curadoria deve ser ACEITA ou REJEITADA.");
-        }
-
-        // Regra 4: Fluxo de REJEIÇÃO exige motivo e justificativa
         if (dto.decisao() == DecisaoSugestao.REJEITADA) {
             if (dto.motivoRejeicao() == null) {
-                throw new IllegalArgumentException("O motivo da rejeição é obrigatório ao recusar uma sugestão.");
+                throw new RegraNegocioException("O motivo da rejeição é obrigatório ao rejeitar uma sugestão "
+                        + "(INCORRETA, GENERICA, DUPLICADA, FORA_DO_ESCOPO, OUTRO).");
             }
             if (dto.justificativa() == null || dto.justificativa().isBlank()) {
-                throw new IllegalArgumentException("A justificativa textual é obrigatória ao recusar uma sugestão.");
+                throw new RegraNegocioException("A justificativa é obrigatória ao rejeitar uma sugestão.");
             }
             sugestao.setMotivoRejeicao(dto.motivoRejeicao());
-            sugestao.setJustificativa(dto.justificativa());
+        } else {
+            sugestao.setMotivoRejeicao(null);
         }
 
-        // Regra 4: Fluxo de ACEITE gera automaticamente um Cenário real
-        if (dto.decisao() == DecisaoSugestao.ACEITA) {
-            if (dto.tituloCenarioAceito() == null || dto.tituloCenarioAceito().isBlank()) {
-                throw new IllegalArgumentException("Informe o título para converter a sugestão em cenário.");
-            }
-            CenarioRequestDTO novoCenario = new CenarioRequestDTO(
-                dto.tituloCenarioAceito(),
-                OrigemCenario.IA_ACEITA,
-                sugestao.getHistoriaUsuario().getId(),
-                dto.passosCenarioAceito()
-            );
-            cenarioService.criarCenario(novoCenario);
-        }
-
+        sugestao.setJustificativa(dto.justificativa() == null || dto.justificativa().isBlank()
+                ? null : dto.justificativa().trim());
         sugestao.setDecisao(dto.decisao());
         sugestao.setDataDecisao(LocalDateTime.now());
+        sugestao.setDecididaPor(historia.getAutor());
 
-        Sugestao atualizada = sugestaoRepository.save(sugestao);
-        return new SugestaoResponseDTO(atualizada);
+        return new SugestaoResponseDTO(sugestaoRepository.save(sugestao));
     }
 
-    // Sem @Transactional em leitura simples, aplicando a recomendação do professor
-    public List<SugestaoResponseDTO> listarPorHistoria(Long historiaId) {
-        return sugestaoRepository.findByHistoriaUsuarioId(historiaId)
-                .stream()
+    /** Lista as sugestões da história, opcionalmente filtrando pela decisão. */
+    @Transactional(readOnly = true)
+    public List<SugestaoResponseDTO> listarPorHistoria(Long historiaId, DecisaoSugestao decisao) {
+        List<Sugestao> sugestoes = decisao == null
+                ? sugestaoRepository.findByHistoriaUsuarioId(historiaId)
+                : sugestaoRepository.findByHistoriaUsuarioIdAndDecisao(historiaId, decisao);
+        return sugestoes.stream().map(SugestaoResponseDTO::new).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public SugestaoResponseDTO buscarPorId(Long id) {
+        return sugestaoRepository.findById(id)
                 .map(SugestaoResponseDTO::new)
-                .toList();
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Sugestão não encontrada com ID: " + id));
     }
 }

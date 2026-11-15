@@ -29,7 +29,7 @@ public class Passo {
     @Column(nullable = false)
     private Integer ordem; // Posição de execução dentro do cenário (1, 2, 3...)
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "cenario_id", nullable = false)
     private Cenario cenario;
 

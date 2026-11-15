@@ -1,10 +1,12 @@
 package br.com.mackenzie.estudiobdd.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,7 +30,7 @@ public class Sugestao {
     private String prompt;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String conteudo; // Texto ou JSON estruturado do cenário sugerido pela IA
+    private String conteudo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -38,7 +40,7 @@ public class Sugestao {
     private MotivoRejeicao motivoRejeicao; // Obrigatório apenas se decisao == REJEITADA
 
     @Column(columnDefinition = "TEXT")
-    private String justificativa; // Explicação humana da curadoria
+    private String justificativa;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
@@ -46,99 +48,66 @@ public class Sugestao {
     @Column(name = "data_decisao")
     private LocalDateTime dataDecisao;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "historia_usuario_id", nullable = false)
     private HistoriaUsuario historiaUsuario;
+
+    /** Usuário que registrou a sugestão (X-Usuario-Id no momento do registro). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "registrada_por_id")
+    private Usuario registradaPor;
+
+    /** Usuário que aceitou/rejeitou a sugestão. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "decidida_por_id")
+    private Usuario decididaPor;
 
     public Sugestao() {
     }
 
     @PrePersist
     public void prePersist() {
-        this.dataCriacao = LocalDateTime.now();
+        if (this.dataCriacao == null) {
+            this.dataCriacao = LocalDateTime.now();
+        }
         if (this.decisao == null) {
             this.decisao = DecisaoSugestao.PENDENTE;
         }
     }
 
-    // Getters e Setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getFerramenta() { return ferramenta; }
+    public void setFerramenta(String ferramenta) { this.ferramenta = ferramenta; }
 
-    public String getFerramenta() {
-        return ferramenta;
-    }
+    public String getPrompt() { return prompt; }
+    public void setPrompt(String prompt) { this.prompt = prompt; }
 
-    public void setFerramenta(String ferramenta) {
-        this.ferramenta = ferramenta;
-    }
+    public String getConteudo() { return conteudo; }
+    public void setConteudo(String conteudo) { this.conteudo = conteudo; }
 
-    public String getPrompt() {
-        return prompt;
-    }
+    public DecisaoSugestao getDecisao() { return decisao; }
+    public void setDecisao(DecisaoSugestao decisao) { this.decisao = decisao; }
 
-    public void setPrompt(String prompt) {
-        this.prompt = prompt;
-    }
+    public MotivoRejeicao getMotivoRejeicao() { return motivoRejeicao; }
+    public void setMotivoRejeicao(MotivoRejeicao motivoRejeicao) { this.motivoRejeicao = motivoRejeicao; }
 
-    public String getConteudo() {
-        return conteudo;
-    }
+    public String getJustificativa() { return justificativa; }
+    public void setJustificativa(String justificativa) { this.justificativa = justificativa; }
 
-    public void setConteudo(String conteudo) {
-        this.conteudo = conteudo;
-    }
+    public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
 
-    public DecisaoSugestao getDecisao() {
-        return decisao;
-    }
+    public LocalDateTime getDataDecisao() { return dataDecisao; }
+    public void setDataDecisao(LocalDateTime dataDecisao) { this.dataDecisao = dataDecisao; }
 
-    public void setDecisao(DecisaoSugestao decisao) {
-        this.decisao = decisao;
-    }
+    public HistoriaUsuario getHistoriaUsuario() { return historiaUsuario; }
+    public void setHistoriaUsuario(HistoriaUsuario historiaUsuario) { this.historiaUsuario = historiaUsuario; }
 
-    public MotivoRejeicao getMotivoRejeicao() {
-        return motivoRejeicao;
-    }
+    public Usuario getRegistradaPor() { return registradaPor; }
+    public void setRegistradaPor(Usuario registradaPor) { this.registradaPor = registradaPor; }
 
-    public void setMotivoRejeicao(MotivoRejeicao motivoRejeicao) {
-        this.motivoRejeicao = motivoRejeicao;
-    }
-
-    public String getJustificativa() {
-        return justificativa;
-    }
-
-    public void setJustificativa(String justificativa) {
-        this.justificativa = justificativa;
-    }
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
-
-    public LocalDateTime getDataDecisao() {
-        return dataDecisao;
-    }
-
-    public void setDataDecisao(LocalDateTime dataDecisao) {
-        this.dataDecisao = dataDecisao;
-    }
-
-    public HistoriaUsuario getHistoriaUsuario() {
-        return historiaUsuario;
-    }
-
-    public void setHistoriaUsuario(HistoriaUsuario historiaUsuario) {
-        this.historiaUsuario = historiaUsuario;
-    }
+    public Usuario getDecididaPor() { return decididaPor; }
+    public void setDecididaPor(Usuario decididaPor) { this.decididaPor = decididaPor; }
 }

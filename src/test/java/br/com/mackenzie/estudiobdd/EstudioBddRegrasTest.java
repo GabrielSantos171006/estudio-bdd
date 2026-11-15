@@ -1,7 +1,8 @@
 package br.com.mackenzie.estudiobdd;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,8 +18,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import br.com.mackenzie.estudiobdd.dto.CenarioRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.CuradoriaRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.PassoDTO;
-import br.com.mackenzie.estudiobdd.model.*;
-import br.com.mackenzie.estudiobdd.repository.*;
+import br.com.mackenzie.estudiobdd.exception.RegraNegocioException;
+import br.com.mackenzie.estudiobdd.model.DecisaoSugestao;
+import br.com.mackenzie.estudiobdd.model.HistoriaUsuario;
+import br.com.mackenzie.estudiobdd.model.MotivoRejeicao;
+import br.com.mackenzie.estudiobdd.model.OrigemCenario;
+import br.com.mackenzie.estudiobdd.model.Sugestao;
+import br.com.mackenzie.estudiobdd.model.TipoPasso;
+import br.com.mackenzie.estudiobdd.model.Usuario;
+import br.com.mackenzie.estudiobdd.repository.CenarioRepository;
+import br.com.mackenzie.estudiobdd.repository.HistoriaUsuarioRepository;
+import br.com.mackenzie.estudiobdd.repository.ProjetoRepository;
+import br.com.mackenzie.estudiobdd.repository.SugestaoRepository;
+import br.com.mackenzie.estudiobdd.repository.UsuarioRepository;
 import br.com.mackenzie.estudiobdd.service.CenarioService;
 import br.com.mackenzie.estudiobdd.service.HistoriaUsuarioService;
 import br.com.mackenzie.estudiobdd.service.SugestaoService;
@@ -29,7 +41,6 @@ class EstudioBddRegrasTest {
     @Mock private CenarioRepository cenarioRepository;
     @Mock private HistoriaUsuarioRepository historiaRepository;
     @Mock private SugestaoRepository sugestaoRepository;
-    @Mock private PassoRepository passoRepository;
     @Mock private ProjetoRepository projetoRepository;
     @Mock private UsuarioRepository usuarioRepository;
 
@@ -56,7 +67,6 @@ class EstudioBddRegrasTest {
     @DisplayName("Regra 2: Deve rejeitar cadastro de cenário que não possui passo ENTAO")
     void deveRejeitarCenarioSemEntao() {
         when(historiaRepository.findById(1L)).thenReturn(Optional.of(historia));
-        when(cenarioRepository.existsByTituloAndHistoriaUsuarioId(anyString(), eq(1L))).thenReturn(false);
 
         List<PassoDTO> passosInvalidos = List.of(
             new PassoDTO(null, TipoPasso.DADO, "que o usuário está logado", 1),
@@ -65,8 +75,8 @@ class EstudioBddRegrasTest {
 
         CenarioRequestDTO dto = new CenarioRequestDTO("Cenário sem Então", OrigemCenario.HUMANO, 1L, passosInvalidos);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            cenarioService.criarCenario(dto);
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> {
+            cenarioService.criarCenario(dto, 1L);
         });
 
         assertTrue(ex.getMessage().contains("ENTAO"));
@@ -76,7 +86,6 @@ class EstudioBddRegrasTest {
     @DisplayName("Regra 2: Deve rejeitar cenário que inicia com passo E ou MAS")
     void deveRejeitarCenarioIniciadoComE() {
         when(historiaRepository.findById(1L)).thenReturn(Optional.of(historia));
-        when(cenarioRepository.existsByTituloAndHistoriaUsuarioId(anyString(), eq(1L))).thenReturn(false);
 
         List<PassoDTO> passosInvalidos = List.of(
             new PassoDTO(null, TipoPasso.E, "passo conector no início", 1),
@@ -86,8 +95,8 @@ class EstudioBddRegrasTest {
 
         CenarioRequestDTO dto = new CenarioRequestDTO("Cenário inválido", OrigemCenario.HUMANO, 1L, passosInvalidos);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            cenarioService.criarCenario(dto);
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> {
+            cenarioService.criarCenario(dto, 1L);
         });
 
         assertTrue(ex.getMessage().contains("não podem iniciar o cenário"));
@@ -104,11 +113,11 @@ class EstudioBddRegrasTest {
         when(sugestaoRepository.findById(10L)).thenReturn(Optional.of(sugestao));
 
         CuradoriaRequestDTO dtoSemJustificativa = new CuradoriaRequestDTO(
-            1L, DecisaoSugestao.REJEITADA, MotivoRejeicao.GENERICA, "", null, null
+            DecisaoSugestao.REJEITADA, MotivoRejeicao.GENERICA, ""
         );
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
-            sugestaoService.realizarCuradoria(10L, dtoSemJustificativa);
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> {
+            sugestaoService.realizarCuradoria(10L, dtoSemJustificativa, 1L);
         });
 
         assertTrue(ex.getMessage().contains("justificativa"));
@@ -120,10 +129,10 @@ class EstudioBddRegrasTest {
         when(historiaRepository.findById(1L)).thenReturn(Optional.of(historia));
         when(sugestaoRepository.existsByHistoriaUsuarioIdAndDecisao(1L, DecisaoSugestao.PENDENTE)).thenReturn(true);
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+        RegraNegocioException ex = assertThrows(RegraNegocioException.class, () -> {
             historiaService.exportarFeature(1L);
         });
 
-        assertTrue(ex.getMessage().contains("pendentes"));
+        assertTrue(ex.getMessage().contains("pendente"));
     }
 }

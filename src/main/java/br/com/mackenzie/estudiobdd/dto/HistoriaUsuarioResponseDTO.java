@@ -1,5 +1,6 @@
 package br.com.mackenzie.estudiobdd.dto;
 
+import java.time.LocalDateTime;
 import br.com.mackenzie.estudiobdd.model.HistoriaUsuario;
 import br.com.mackenzie.estudiobdd.model.Prioridade;
 
@@ -12,19 +13,23 @@ public record HistoriaUsuarioResponseDTO(
     Prioridade prioridade,
     Long projetoId,
     Long autorId,
-    String nomeAutor
+    String nomeAutor,
+    LocalDateTime dataCriacao,
+    LocalDateTime dataAtualizacao
 ) {
-    public HistoriaUsuarioResponseDTO(HistoriaUsuario historia) {
+    public HistoriaUsuarioResponseDTO(HistoriaUsuario h) {
         this(
-            historia.getId(),
-            historia.getTitulo(),
-            historia.getPapel(),
-            historia.getAcao(),
-            historia.getBeneficio(),
-            historia.getPrioridade(),
-            historia.getProjeto() != null ? historia.getProjeto().getId() : null,
-            historia.getAutor() != null ? historia.getAutor().getId() : null,
-            historia.getAutor() != null ? historia.getAutor().getNome() : null
+            h.getId(),
+            h.getTitulo(),
+            h.getPapel(),
+            h.getAcao(),
+            h.getBeneficio(),
+            h.getPrioridade(),
+            h.getProjeto() != null ? h.getProjeto().getId() : null,
+            h.getAutor() != null ? h.getAutor().getId() : null,
+            h.getAutor() != null ? h.getAutor().getNome() : null,
+            h.getDataCriacao(),
+            h.getDataAtualizacao()
         );
     }
 }

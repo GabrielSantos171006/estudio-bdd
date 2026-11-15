@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.mackenzie.estudiobdd.dto.UsuarioRequestDTO;
 import br.com.mackenzie.estudiobdd.dto.UsuarioResponseDTO;
+import br.com.mackenzie.estudiobdd.exception.ConflitoException;
+import br.com.mackenzie.estudiobdd.exception.RecursoNaoEncontradoException;
 import br.com.mackenzie.estudiobdd.model.Usuario;
 import br.com.mackenzie.estudiobdd.repository.UsuarioRepository;
 
@@ -14,45 +16,33 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
 
-    // O Spring injeta o repositório automaticamente aqui no construtor
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
     }
 
-    // REGRA 1: Cadastrar novo usuário
+    /** Regra 1: e-mail do usuário é único. */
     @Transactional
     public UsuarioResponseDTO criarUsuario(UsuarioRequestDTO dto) {
-        // Regra de negócio: Não permitir e-mails duplicados
-        if (usuarioRepository.existsByEmail(dto.email())) {
-            throw new IllegalArgumentException("Já existe um usuário cadastrado com este e-mail.");
+        String email = dto.email().trim().toLowerCase();
+        if (usuarioRepository.existsByEmail(email)) {
+            throw new ConflitoException("Já existe um usuário cadastrado com o e-mail " + email + ".");
         }
-
-        // Conversão: DTO -> Entidade Model
-        Usuario usuario = new Usuario();
-        usuario.setNome(dto.nome());
-        usuario.setEmail(dto.email());
-
-        // Persistência: Chama o JPA para fazer o INSERT no Supabase
-        Usuario usuarioSalvo = usuarioRepository.save(usuario);
-
-        // Conversão de saída: Model -> ResponseDTO
-        return new UsuarioResponseDTO(usuarioSalvo);
+        Usuario usuario = new Usuario(dto.nome().trim(), email);
+        return new UsuarioResponseDTO(usuarioRepository.save(usuario));
     }
 
-    // REGRA 2: Listar todos os usuários
     @Transactional(readOnly = true)
     public List<UsuarioResponseDTO> listarTodos() {
-        return usuarioRepository.findAll()
-                .stream()
+        return usuarioRepository.findAll().stream()
+                .sorted((a, b) -> a.getId().compareTo(b.getId()))
                 .map(UsuarioResponseDTO::new)
                 .toList();
     }
 
-    // REGRA 3: Buscar por ID
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + id));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado com ID: " + id));
         return new UsuarioResponseDTO(usuario);
     }
 }

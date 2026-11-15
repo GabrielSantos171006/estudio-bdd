@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 
 import br.com.mackenzie.estudiobdd.dto.*;
+import br.com.mackenzie.estudiobdd.model.OrigemCenario;
 import br.com.mackenzie.estudiobdd.model.Prioridade;
 import br.com.mackenzie.estudiobdd.model.TipoPasso;
 import br.com.mackenzie.estudiobdd.repository.UsuarioRepository;
@@ -35,15 +36,18 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        // Só popula se o banco ainda não tiver usuários cadastrados (evita duplicidade ao reiniciar)
+    public void run(String... args) {
+        // Só popula se o banco ainda não tiver usuários cadastrados
         if (usuarioRepository.count() > 0) {
             return;
         }
 
-        // 1. Criar Usuário Revisor / Autor (ID 1)
+        // 1. Criar Usuários de Demonstração (ID 1 e ID 2 para testar autoria via X-Usuario-Id)
         UsuarioResponseDTO gabriel = usuarioService.criarUsuario(
             new UsuarioRequestDTO("Gabriel Gomes", "gabriel@mackenzie.br")
+        );
+        usuarioService.criarUsuario(
+            new UsuarioRequestDTO("Kauê Damaceno", "kaue@mackenzie.br")
         );
 
         // 2. Criar Projeto (ID 1)
@@ -51,8 +55,9 @@ public class DataSeeder implements CommandLineRunner {
             new ProjetoRequestDTO(
                 "Portal Acadêmico Mackenzie",
                 "Especificação BDD dos módulos de matrícula e notas",
-                gabriel.id()
-            )
+                "Glossário: RA = Registro Acadêmico; Trancamento = cancelamento de matrícula em disciplina dentro do prazo do calendário."
+            ),
+            gabriel.id()
         );
 
         // 3. Criar História 1 — Pronta para Exportação (.feature)
@@ -63,25 +68,26 @@ public class DataSeeder implements CommandLineRunner {
                 "realizar login com meu RA e senha institucional",
                 "consultar minhas notas, faltas e grade horária",
                 Prioridade.ALTA,
-                projeto.id(),
-                gabriel.id()
-            )
+                projeto.id()
+            ),
+            gabriel.id()
         );
 
         cenarioService.criarCenario(
             new CenarioRequestDTO(
                 "Login realizado com credenciais válidas",
-                br.com.mackenzie.estudiobdd.model.OrigemCenario.HUMANO,
+                OrigemCenario.HUMANO,
                 hist1.id(),
                 List.of(
                     new PassoDTO(null, TipoPasso.DADO, "que o aluno possui matrícula ativa no semestre", 1),
                     new PassoDTO(null, TipoPasso.QUANDO, "ele informa o RA e a senha corretos", 2),
                     new PassoDTO(null, TipoPasso.ENTAO, "o sistema redireciona para o painel acadêmico", 3)
                 )
-            )
+            ),
+            gabriel.id()
         );
 
-        // 4. Criar História 2 — Com Sugestão de IA PENDENTE (Para demonstrar Bloqueio e Curadoria ao Vivo!)
+        // 4. Criar História 2 — Com Sugestão de IA PENDENTE (Para demonstrar Bloqueio e Curadoria ao Vivo)
         HistoriaUsuarioResponseDTO hist2 = historiaService.criarHistoria(
             new HistoriaUsuarioRequestDTO(
                 "Solicitação de Trancamento de Disciplina",
@@ -89,9 +95,9 @@ public class DataSeeder implements CommandLineRunner {
                 "solicitar o trancamento de uma disciplina dentro do prazo",
                 "evitar reprovação por falta em caso de imprevisto",
                 Prioridade.MEDIA,
-                projeto.id(),
-                gabriel.id()
-            )
+                projeto.id()
+            ),
+            gabriel.id()
         );
 
         sugestaoService.registrarSugestao(
@@ -100,9 +106,10 @@ public class DataSeeder implements CommandLineRunner {
                 "Gere um cenário de exceção BDD quando o prazo de trancamento já expirou.",
                 "Cenário: Tentativa de trancamento fora do prazo\nDado que o calendário acadêmico encerrou o período de trancamento\nQuando o aluno solicita o cancelamento da disciplina\nEntão o sistema bloqueia a operação e exibe a data limite",
                 hist2.id()
-            )
+            ),
+            gabriel.id()
         );
 
-        System.out.println("✅ DataSeeder: Cenário de demonstração populado com sucesso!");
+        System.out.println("DataSeeder: Cenário de demonstração populado com sucesso!");
     }
 }
