@@ -18,7 +18,7 @@ Aplicação web full stack desenvolvida para a disciplina de **Programação de 
 
 - **Kauê Trigolô Damaceno** — RA: 10748319
 
-- **Henrique Orlando da Silva Rosa** — RA: 10753510
+- **Henrique Orlando da Silva Rosa** — RA: 10753777
 
 
 
